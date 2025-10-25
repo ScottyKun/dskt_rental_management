@@ -65,6 +65,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(3)">Rôle</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(4)">Telephone</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(5)">Adresse</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(6)">Gestionnaire</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
@@ -77,6 +78,10 @@
                     <td class="px-6 py-4">{{ ucfirst($user->role) }}</td>
                     <td class="px-6 py-4">{{ $user->phone }}</td>
                     <td class="px-6 py-4">{{ $user->address }}</td>
+                    <td class="px-6 py-4">
+                        {{ $user->manager ? $user->manager->name . ' ' . $user->manager->surname : 'Non assigné' }}
+                    </td>
+
                     <td class="px-6 py-4 flex space-x-2">
                         {{-- Actions : Editer, Supprimer, Valider, Désactiver --}}
                         <a href="{{ route('users.edit', $user->id) }}" class="text-blue-500 hover:text-blue-700" title="Éditer">

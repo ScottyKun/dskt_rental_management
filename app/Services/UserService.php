@@ -32,6 +32,15 @@ class UserService{
         $data['phone'] = e($data['phone']);
         $data['address'] = e($data['address']);
         $data['is_validated'] = true;
+        $data['manager_id'] = e($data['manager_id']);
+
+        // Assigner un manager si c'est un locataire
+        if ($data['role'] === 'locataire' && !isset($data['manager_id'])) {
+            throw ValidationException::withMessages([
+                'manager_id' => 'Selectionner un gestionnaire.'
+            ]);
+        }
+
         return $this->userRepository->create($data);
     }
 
@@ -49,8 +58,15 @@ class UserService{
         }
         else{
             unset($data['password']);
-        }
+        }  
         
+        // Assigner un manager si c'est un locataire
+        if ($data['role'] === 'locataire' && !isset($data['manager_id'])) {
+            throw ValidationException::withMessages([
+                'manager_id' => 'Selectionner un gestionnaire.'
+            ]);
+        }
+
         return $this->userRepository->update($id, $data);
     }
 
@@ -63,6 +79,21 @@ class UserService{
     //valider un utilisateur
     public function validate(int $id): bool
     {
+        $user = User::find($id);
+        if (!$user) {
+            return false;
+        }
+
+        // Si c'est un locataire
+        if ($user->role === 'locataire') {
+            if (!$user->manager_id) {
+                throw ValidationException::withMessages([
+                    'manager_id' => 'Veuillez assigner un gestionnaire avant de valider ce locataire.'
+                ]);
+            }
+        }
+
+        // Sinon
         return $this->userRepository->valider($id);
     }
 
@@ -92,5 +123,9 @@ class UserService{
         return $this->userRepository->getLocatairesSansAppartement();
     }
 
+    //liste des gestionnaires
+    public function managers(){
+        return $this->userRepository->findByManagers();
+    }
 
 }
