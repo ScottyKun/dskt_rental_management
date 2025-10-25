@@ -55,7 +55,8 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 2)">Ville</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 3)">Gestionnaire</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 4)">Créé le</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 5)">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 5)">Statuts</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 6)">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -69,6 +70,7 @@
 
                     </td>
                     <td class="px-6 py-4">{{ $immeuble->created_at->format('d/m/Y') }}</td>
+                    <td class="px-6 py-4">{{ $immeuble->status }}</td>
 
                     {{-- Actions --}}
                     <td class="px-6 py-4 flex space-x-3">
