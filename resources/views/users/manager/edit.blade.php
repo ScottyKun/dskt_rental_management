@@ -1,40 +1,40 @@
 @extends('layouts.appLimited')
 
-@section('title', 'Modifier un utilisateur')
+@section('title', 'Modifier un locataire')
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100">
-    <form action="{{ route('users.update', $user->id) }}" method="POST" 
-          class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5"
-          x-data="{ role: '{{ old('role', $user->role) }}' }">
+    <form action="{{ route('manager.update', $locataire->id) }}" method="POST" 
+          class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
         @method('PUT')
         <h2 class="text-3xl font-bold text-center text-gray-800">
-            <i class="fa-solid fa-user-edit text-blue-500 mr-2"></i>Modifier l'utilisateur
+            <i class="fa-solid fa-user-edit text-blue-500 mr-2"></i>Modifier un locataire
         </h2>
 
+        
         <div>
             <label class="block mb-1 font-semibold">Nom</label>
-            <input type="text" name="name" value="{{ old('name', $user->name) }}"
+            <input type="text" name="name" value="{{ old('name', $locataire->name ?? '') }}"
                 class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
         </div>
 
         <div>
             <label class="block mb-1 font-semibold">Prénom</label>
-            <input type="text" name="surname" value="{{ old('surname', $user->surname) }}"
+            <input type="text" name="surname" value="{{ old('surname', $locataire->surname ?? '') }}"
                 class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
         </div>
 
         <div>
             <label class="block mb-1 font-semibold">Email</label>
-            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+            <input type="email" name="email" value="{{ old('email', $locataire->email ?? '') }}"
                 class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
         </div>
 
         <div x-data="{ show: false }">
             <label class="block mb-1 font-semibold">Mot de passe</label>
             <div class="relative">
-                <input :type="show ? 'text' : 'password'" name="password" 
+                <input :type="show ? 'text' : 'password'" name="password"
                     class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
                 <button type="button" @click="show = !show" class="absolute inset-y-0 right-3 text-gray-500">
                     <i :class="show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
@@ -49,40 +49,18 @@
         </div>
 
         <div>
-            <label class="block mb-1 font-semibold">Rôle</label>
-            <select name="role" x-model="role"
-                    class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
-                <option value="locataire" {{ old('role', $user->role) === 'locataire' ? 'selected' : '' }}>Locataire</option>
-                <option value="gestionnaire" {{ old('role', $user->role) === 'gestionnaire' ? 'selected' : '' }}>Gestionnaire</option>
-                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
-            </select>
-        </div>
-
-        <!-- Gestionnaire uniquement si rôle = locataire -->
-        <div x-show="role === 'locataire'" x-transition>
-            <label class="block mb-1 font-semibold">Gestionnaire</label>
-            <select name="manager_id" x-ref="manager"
-                    class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
-                <option value="">-- Sélectionner un gestionnaire --</option>
-                @foreach($managers as $manager)
-                    <option value="{{ $manager->id }}" {{ old('manager_id', $user->manager_id) == $manager->id ? 'selected' : '' }}>
-                        {{ $manager->name }} {{ $manager->surname }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div>
             <label class="block mb-1 font-semibold">Téléphone</label>
-            <input type="text" name="phone" value="{{ old('phone', $user->phone) }}"
+            <input type="text" name="phone" value="{{ old('phone', $locataire->phone ?? '') }}"
                 class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
 
         <div>
             <label class="block mb-1 font-semibold">Adresse</label>
-            <input type="text" name="address" value="{{ old('address', $user->address) }}"
+            <input type="text" name="address" value="{{ old('address', $locataire->address ?? '') }}"
                 class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
+
+        <input type="hidden" name="role" value="locataire">
 
         <button type="submit"
             class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">

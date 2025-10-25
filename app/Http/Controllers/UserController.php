@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\UserService;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -36,7 +37,8 @@ class UserController extends Controller
     //retourne le formulaire d'ajout
     public function create()
     {
-        return view('users.create');
+        $managers= $this->userService->Managers();
+        return view('users.create',compact('managers'));
     }
 
     public function store(Request $request)
@@ -49,6 +51,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'role' => 'required|in:locataire,admin,gestionnaire',
+            'manager_id'=> 'required',
         ]);
 
         $admin = Auth::user(); // utilisateur connecté, pour création de gestionnaire
@@ -65,7 +68,10 @@ class UserController extends Controller
         if (!$user) {
             return redirect()->back()->with('error', 'User not found.');
         }
-        return view('users.edit', compact('user'));
+
+        $managers= $this->userService->Managers();
+
+        return view('users.edit', compact('user','managers'));
     }
 
      public function update(Request $request, int $id)
@@ -75,9 +81,10 @@ class UserController extends Controller
             'surname' => 'sometimes|string|min:3|max:255',
             'email' => "sometimes|string|email|max:255|unique:users,email,{$id}",
             'password' => 'nullable|string|min:6|confirmed',
-            'phone' => 'sometimes|string|max:20',
-            'address' => 'sometimes|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
             'role' => 'sometimes|in:locataire,admin,gestionnaire',
+            'manager_id'=> 'required',
         ]);
 
         $updated = $this->userService->update($id, $validated);
@@ -103,13 +110,18 @@ class UserController extends Controller
     // Valider un utilisateur 
     public function validateUser(int $id)
     {
+        try {
         $validated = $this->userService->validate($id);
 
         if (!$validated) {
             return redirect()->back()->with('error', 'User not found.');
         }
 
-        return redirect()->route('users.index')->with('success', 'User validated successfully.');
+            return redirect()->route('users.index')->with('success', 'Utilisateur validé avec succès.');
+        
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        }
     }
 
     // Désactiver un utilisateur 

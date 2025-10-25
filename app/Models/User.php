@@ -22,6 +22,7 @@ class User extends Authenticatable
         'phone',
         'address',
         'must_change_password',
+        'manager_id',
     ];
 
     
@@ -48,6 +49,19 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    //one to one locataire-gestionnaire
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    //one to many gestionnaire-locataire
+     public function locataires()
+    {
+        return $this->hasMany(User::class, 'manager_id');
+    }
+
+    //one to one avec appartement
     public function appartement()
     {
         return $this->hasOne(Appartement::class, 'locataire_id');

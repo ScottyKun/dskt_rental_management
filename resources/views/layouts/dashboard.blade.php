@@ -77,6 +77,19 @@
                     </a>
                 </li>
                 @endif
+
+                <!-- Manager -->
+                @if(auth()->user()->role === 'gestionnaire')
+                <li>
+                    <a href="{{ route('manager.index') }}" 
+                        class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('manager.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
+                        <i class="fa-solid fa-users mr-3 text-lg"></i>
+                        <span x-show="open" class="text-sm font-medium">Locataires</span>
+                    </a>
+                </li>
+                @endif
                 
                 <!-- Séparateur -->
                 <hr class="my-3 border-gray-700 opacity-30">

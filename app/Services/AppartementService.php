@@ -12,6 +12,7 @@ use Exception;
 use App\Repositories\ImmeubleRepository;
 use App\Repositories\AppartementRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\ManagerRepository;
 
 
 class AppartementService{
@@ -19,11 +20,14 @@ class AppartementService{
     protected $appartementRepository;
     protected $immeubleRepository;
     protected $userRepository;
-    public function __construct(AppartementRepository $appartementRepository, ImmeubleRepository $immeubleRepository, UserRepository $userRepository)
+    protected $managerRepository;
+    public function __construct
+    (AppartementRepository $appartementRepository, ImmeubleRepository $immeubleRepository, UserRepository $userRepository, ManagerRepository $managerRepository)
     {
         $this->appartementRepository = $appartementRepository;
         $this->immeubleRepository = $immeubleRepository;
         $this->userRepository = $userRepository;
+        $this->managerRepository = $managerRepository;
     }
 
     //Creer un appartement
@@ -176,7 +180,12 @@ class AppartementService{
         }
 
         // Locataires (optionnel)
-        $locataires = $this->userRepository->getLocatairesSansAppartement();
+        if($user->role==='admin'){
+            $locataires = $this->userRepository->getLocatairesSansAppartement();
+        }else{
+            $locataires= $this->managerRepository->getLocataires($user->id);
+        }
+        
 
         return compact('immeubles', 'locataires');
     }

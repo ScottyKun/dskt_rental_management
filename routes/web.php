@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ImmeubleController;
 use App\Http\Controllers\AppartementController;
+use App\Http\Controllers\ManagerController;
 
 Route::get("/", fn() => redirect("login"));
 
@@ -108,4 +109,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appartements/search', [AppartementController::class,'search'])->name('appartements.search');
     //consulter un appartement
     Route::get('/appartements/{id}', [AppartementController::class,'consult'])->name('appartements.consult');
+});
+
+// Manager routes
+Route::middleware(['auth'])->group(function () { 
+    //index
+    Route::get('/manager/locataires/index', [ManagerController::class,'index'])->name('manager.index');
+    //creer locataire
+    Route::get('/manager/locataires/create', [ManagerController::class,'create'])->name('manager.create');
+    Route::post('/manager/locataires', [ManagerController::class,'store'])->name('manager.store');
+    //modifier locataire
+    Route::get('/manager/locataires/edit/{id}', [ManagerController::class,'edit'])->name('manager.edit');
+    Route::put('/manager/locataires/{id}', [ManagerController::class,'update'])->name('manager.update');
+    //supprimer locataire
+    Route::delete('/manager/locataires/{id}', [ManagerController::class,'destroy'])->name('manager.delete');
+    //activer locataire
+    Route::patch('/manager/locataires/{id}/activate', [ManagerController::class, 'activate'])->name('manager.activate');
+    //desactiver locataire
+    Route::patch('/manager/locataires/{id}/deactivate', [ManagerController::class, 'deactivate'])->name('manager.deactivate');
+    //rechercher locataire
+    Route::get('/manager/locataires/search', [ManagerController::class, 'search'])->name('manager.search');
 });
