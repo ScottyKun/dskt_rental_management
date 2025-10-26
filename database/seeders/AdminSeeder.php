@@ -26,6 +26,7 @@ class AdminSeeder extends Seeder
         ['email' => $adminEmail],
         [
             'name' => 'Admin',
+            'surname'=> 'Admin',
             'role' => 'admin',
             'is_validated' => true,
             'must_change_password' => true,
