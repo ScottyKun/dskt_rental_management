@@ -144,6 +144,4 @@ class ManagerRepository{
             'inactive' => $inactive,
         ];
     }
-
-    
 }

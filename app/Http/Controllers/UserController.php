@@ -93,6 +93,14 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'User not found.');
         }
 
+        $isOwnProfile = Auth::user()->id == $id;
+
+        if ($isOwnProfile) {
+            return redirect()
+                ->route('users.show', $id)
+                ->with('success', 'Vos informations ont été mises à jour.');
+        }
+
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
@@ -136,6 +144,12 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User deactivated successfully.');
     }
 
-   
+   //profil
+   public function consult(int $id){
+        $user=$this->userService->getProfil($id);
+
+        return view('users.show',compact('user'));
+
+   }
 
 }

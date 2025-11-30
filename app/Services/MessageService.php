@@ -66,4 +66,21 @@ class MessageService{
     {
         return $this->messageRepository->findById($id);
     }
+
+    //envoie de la demande du locataire
+    public function sendTenantRequest(int $id,array $data)
+    {
+        $tenant=$this->userRepository->findById($id);
+        $receivers = $this->userRepository->getAdminsAndTenantManager($tenant);
+
+        foreach ($receivers as $receiver) {
+            $this->messageRepository->create([
+                'sender_id'   => $tenant->id,
+                'receiver_id' => $receiver->id,
+                'title'       => e($data['title']),
+                'content'     => e($data['content']),
+                'is_read'     => false
+            ]);
+        }
+    }
 }    

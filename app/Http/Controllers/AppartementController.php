@@ -59,7 +59,7 @@ class AppartementController extends Controller
     public function edit($id)
     {
         $appartement = $this->appartementService->findById($id);
-        $data=$this->appartementService->getFormData();
+        $data=$this->appartementService->getFormData($id);
 
         $immeubles = $data['immeubles'];
         $locataires = $data['locataires'];
@@ -126,6 +126,10 @@ class AppartementController extends Controller
         return view('appartements.index', compact('immeubles', 'stats'));
     }
 
-
+    //appartement du locataire
+    public function locataire(){
+        $appartement=$this->appartementService->getLocataireAppartement();
+        return view('users.locataire.consultAppart', compact('appartement'));
+    }
 
 }

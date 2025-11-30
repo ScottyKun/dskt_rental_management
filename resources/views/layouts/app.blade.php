@@ -24,7 +24,7 @@
         <!-- Zone droite -->
         <div class="flex items-center space-x-5">
             <!-- Avatar profil -->
-            <a href="#" class="text-blue-500 hover:text-blue-700 transition text-2xl">
+            <a href="{{ route('users.show', Auth::user()->id) }}" class="text-blue-500 hover:text-blue-700 transition text-2xl">
                 <i class="fa-solid fa-circle-user"></i>
             </a>
 

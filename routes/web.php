@@ -8,6 +8,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ImmeubleController;
 use App\Http\Controllers\AppartementController;
 use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\ContratController;
 
 Route::get("/", fn() => redirect("login"));
 
@@ -57,6 +58,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Désactiver un utilisateur
     Route::patch('/users/{id}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+
+    //profil ou show
+    Route::get('/users/{id}', [UserController::class,'consult'])->name('users.show');
+
 });
 
 // Message Management Routes
@@ -73,6 +78,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Supprimer un message
     Route::delete('/messages/{id}', [MessageController::class, 'delete'])->name('messages.delete');
+
+    //demande locataire
+    Route::get('/messages/request', [MessageController::class, 'create'])->name('messages.request.create');
+    Route::post('/messages/request/send', [MessageController::class, 'store']) ->name('messages.request.store');
 });
 
 // Immeuble Management Routes
@@ -129,4 +138,35 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/manager/locataires/{id}/deactivate', [ManagerController::class, 'deactivate'])->name('manager.deactivate');
     //rechercher locataire
     Route::get('/manager/locataires/search', [ManagerController::class, 'search'])->name('manager.search');
+});
+
+//Contrat Management routes
+Route::middleware(['auth'])->group(function () {
+    //index
+    Route::get('/contrats', [ContratController::class, 'index']) ->name('contrats.index');
+    //create
+    Route::get('/contrats/create', [ContratController::class, 'create'])->name('contrats.create');
+    Route::post('/contrats', [ContratController::class, 'store'])->name('contrats.store');
+    //update
+    Route::get('/contrats/edit/{id}', [ContratController::class, 'edit'])->name('contrats.edit');
+    Route::put('/contrats/{id}', [ContratController::class, 'update']) ->name('contrats.update');
+    //delete
+    Route::delete('/contrats/{id}', [ContratController::class, 'destroy'])->name('contrats.destroy');
+    //terminate
+    Route::post('/contrats/terminate/{id}', [ContratController::class, 'terminate'])->name('contrats.terminate');
+    //search
+    Route::get('/contrats/search', [ContratController::class, 'search'])->name('contrats.search');
+    //renew
+    Route::get('contrats/renew/{id}', [ContratController::class, 'renewForm'])->name('contrats.renewForm');
+    Route::post('contrats/renew/{id}', [ContratController::class, 'renew'])->name('contrats.renew');
+    //consult
+    Route::get('/contrats/{id}', [ContratController::class, 'consult'])->name('contrats.consult');
+
+});
+
+//locataires routes
+Route::middleware(['auth'])->group(function () {
+    //mon logement
+    Route::get('/tenant/logement', [AppartementController::class,'locataire'])->name('tenant.logement');
+
 });

@@ -40,7 +40,7 @@ class AppartementService{
             $data['description'] = e($data['description'] ?? '');
             $data['type'] = e($data['type']);
             $data['area'] = e($data['area']);
-             $data['rent'] = e($data['rent'] );
+            $data['rent'] = e($data['rent'] );
             $data['status'] = e($data['status'] ?? 'disponible');
             
             // Vérifie que l’immeuble existe
@@ -49,16 +49,33 @@ class AppartementService{
                 throw ValidationException::withMessages([
                     'immeuble_id' => 'L\'immeuble spécifié n\'existe pas.'
                 ]);
-            }  
+            } 
+            
+            // Vérifie si l’immeuble a des appartements disponibles
+            if ($immeuble->nb_available <= 0) {
+                throw ValidationException::withMessages([
+                    'immeuble_id' => 'Impossible de créer un appartement : l’immeuble n’a plus de places disponibles.'
+                ]);
+            }
+
+             // Si le statut est 'occupe', un locataire doit être défini
+            if ($data['status'] === 'occupe' && empty($data['locataire_id'])) {
+                throw ValidationException::withMessages([
+                    'locataire_id' => 'Vous devez assigner un locataire pour un appartement occupé.'
+                ]);
+            }
 
             // Vérifie que le locataire existe s’il est défini
-        if (!empty($data['locataire_id'])) {
-                    $locataire = $this->userRepository->findById($data['locataire_id']);
-                    if (!$locataire) {
-                        throw ValidationException::withMessages([
-                            'locataire_id' => 'Le locataire spécifié n\'existe pas.'
-                        ]);
-                    }
+            if (!empty($data['locataire_id'])) {
+                $locataire = $this->userRepository->findById($data['locataire_id']);
+                if (!$locataire) {
+                    throw ValidationException::withMessages([
+                        'locataire_id' => 'Le locataire spécifié n\'existe pas.'
+                    ]);
+                }
+
+                // Si un locataire est assigné, on force le statut à 'occupe'
+                $data['status'] = 'occupe';
             }
 
             //creatin de l'appartement
@@ -85,25 +102,87 @@ class AppartementService{
     //update un appartement
     public function update(int $id, array $data): bool
     {
-        $appartement = $this->appartementRepository->findById($id);
+        DB::beginTransaction();
 
-        if (!$appartement) {
-            throw ValidationException::withMessages([
-                'id' => 'Appartement introuvable.'
-            ]);
+        try {
+            $appartement = $this->appartementRepository->findById($id);
+            if (!$appartement) {
+                throw ValidationException::withMessages([
+                    'id' => 'Appartement introuvable.'
+                ]);
+            }
+
+            $ancienImmeuble = $appartement->immeuble;
+
+            // Assainissement des champs
+            $data['name'] = e($data['name'] ?? $appartement->name);
+            $data['description'] = e($data['description'] ?? $appartement->description);
+            $data['type'] = e($data['type'] ?? $appartement->type);
+            $data['area'] = e($data['area'] ?? $appartement->area);
+            $data['rent'] = e($data['rent'] ?? $appartement->rent);
+
+            // Gestion du locataire et du statut
+            if (!empty($data['locataire_id'])) {
+                $locataire = $this->userRepository->findById($data['locataire_id']);
+                if (!$locataire) {
+                    throw ValidationException::withMessages([
+                        'locataire_id' => 'Le locataire spécifié n\'existe pas.'
+                    ]);
+                }
+                $data['status'] = 'occupe';
+            }
+
+            if ($data['status'] === 'occupe' && empty($data['locataire_id'])) {
+                throw ValidationException::withMessages([
+                    'locataire_id' => 'Vous devez assigner un locataire pour un appartement occupé.'
+                ]);
+            }
+
+            // Gestion changement de statut pour l'ancien immeuble
+            if ($data['status'] !== $appartement->status) {
+                if ($data['status'] === 'occupe' && $appartement->status !== 'occupe') {
+                    $ancienImmeuble->nb_occupied += 1;
+                    $ancienImmeuble->nb_available = max(0, $ancienImmeuble->nb_available - 1);
+                } elseif ($data['status'] !== 'occupe' && $appartement->status === 'occupe') {
+                    $ancienImmeuble->nb_occupied = max(0, $ancienImmeuble->nb_occupied - 1);
+                    $ancienImmeuble->nb_available += 1;
+                }
+                $ancienImmeuble->save();
+            }
+
+            // Gestion du changement d’immeuble si modifié
+            if (isset($data['immeuble_id']) && $data['immeuble_id'] != $appartement->immeuble_id) {
+                $nouvelImmeuble = $this->immeubleRepository->findById($data['immeuble_id']);
+                if (!$nouvelImmeuble) {
+                    throw ValidationException::withMessages([
+                        'immeuble_id' => 'L\'immeuble spécifié n\'existe pas.'
+                    ]);
+                }
+
+                // Ajuste les compteurs si l'appartement est occupé
+                if ($data['status'] === 'occupe') {
+                    // Décrémente l'ancien immeuble
+                    $ancienImmeuble->nb_occupied = max(0, $ancienImmeuble->nb_occupied - 1);
+                    $ancienImmeuble->nb_available += 1;
+                    $ancienImmeuble->save();
+
+                    // Incrémente le nouvel immeuble
+                    $nouvelImmeuble->nb_occupied += 1;
+                    $nouvelImmeuble->nb_available = max(0, $nouvelImmeuble->nb_available - 1);
+                    $nouvelImmeuble->save();
+                }
+            }
+
+            $result = $this->appartementRepository->update($id, $data);
+            DB::commit();
+            return $result;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
-
-        $data['name'] = e($data['name'] ?? $appartement->name);
-        $data['description'] = e($data['description'] ?? $appartement->description);
-        $data['type'] = e($data['type'] ?? $appartement->type);
-        $data['area'] = e($data['area'] ?? $appartement->area);
-        $data['rent'] = e($data['rent'] ?? $appartement->rent);
-        $data['status'] = e($data['status'] ?? $appartement->status);
-
-        
-        return $this->appartementRepository->update($id, $data);
- 
     }
+
 
     //supprimer un appartement
     public function delete(int $id): bool
@@ -168,9 +247,10 @@ class AppartementService{
     }
 
     //getData
-    public function getFormData()
+    public function getFormData(?int $id = null)
     {
         $user = Auth::user();
+        $appartement= $this->appartementRepository->findById($id);
 
         // Immeubles selon le rôle
         if ($user->role === 'admin') {
@@ -179,11 +259,18 @@ class AppartementService{
             $immeubles = $this->immeubleRepository->findByGestionnaire($user->id);
         }
 
-        // Locataires (optionnel)
+        // Locataires
         if($user->role==='admin'){
             $locataires = $this->userRepository->getLocatairesSansAppartement();
         }else{
             $locataires= $this->managerRepository->getLocataires($user->id);
+        }
+
+        // Si on édite un appartement, inclure son locataire actuel
+        if ($appartement && $appartement->locataire) {
+            $locataires->push($appartement->locataire);
+            // Supprime les doublons par id
+            $locataires = $locataires->unique('id');
         }
         
 
@@ -201,5 +288,11 @@ class AppartementService{
         ];
     }
 
+    //appartement d'un locataire
+    public function getLocataireAppartement(){
+        $id=Auth::id();
+        return $this->appartementRepository->getLocataireAppartement($id)
+        
+;    }
    
 }
