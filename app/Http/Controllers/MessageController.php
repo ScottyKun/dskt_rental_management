@@ -59,4 +59,24 @@ class MessageController extends Controller
 
         return redirect()->route('messages.index')->with('success', 'Message deleted successfully.');
     }
+
+    //create
+    public function create(){
+        return view('messages.create');
+    }
+
+    //store and send
+    public function store(Request $request){
+        $data=$request->validate([
+            'content' => 'required|min:5',
+            'title' => 'required|min:5'
+        ]);
+
+        $id=Auth::user()->id;
+
+        $this->messageService->sendTenantRequest($id,$data);
+
+        return redirect()->route('contrats.index')->with('success', 'Votre demande a été envoyée aux responsables.');
+    }
+
 }

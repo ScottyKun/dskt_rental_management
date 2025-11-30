@@ -130,4 +130,39 @@ class AppartementRepository
         return $query->count();
     }
     
+    // appartements sans contrat actif (admin)
+   public function appartementsSansContratActif()
+    {
+        return Appartement::with(['immeuble', 'locataire'])
+            ->where(function ($query) {
+                $query->whereDoesntHave('contrats', function ($q) {
+                    $q->where('status', 'actif');
+                })
+                ->orWhere('status', 'disponible');
+            })
+            ->get();
+    }
+
+
+    // appartements sans contrat actif par gestionnaire
+    public function appartementsSansContratActifByManager(int $managerId)
+    {
+        return Appartement::with(['immeuble', 'locataire'])
+            ->whereHas('immeuble', function ($q) use ($managerId) {
+                $q->where('manager_id', $managerId);
+            })
+            ->where(function ($query) {
+                $query->whereDoesntHave('contrats', function ($q) {
+                    $q->where('status', 'actif');
+                })
+                ->orWhere('status', 'disponible');
+            })
+            ->get();
+    }
+
+    //appartement d'un locataire
+    public function getLocataireAppartement(int $locataire_id){
+        return Appartement::with(['immeuble','contratActif'])
+            ->where('locataire_id',$locataire_id)->first();
+    }
 }

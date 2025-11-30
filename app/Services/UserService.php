@@ -128,4 +128,9 @@ class UserService{
         return $this->userRepository->findByManagers();
     }
 
+    //profil
+    public function getProfil(int $id){
+        return $this->userRepository->getProfil($id);
+    }
+
 }

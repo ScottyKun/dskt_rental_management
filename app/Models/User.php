@@ -67,4 +67,11 @@ class User extends Authenticatable
         return $this->hasOne(Appartement::class, 'locataire_id');
     }
 
+    //one to many avec contrat
+    public function contrats()
+    {
+        return $this->hasMany(Contrat::class, 'tenant_id');
+    }
+
+
 }

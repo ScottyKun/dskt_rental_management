@@ -85,6 +85,7 @@ class ImmeubleService{
         $data['description'] = e($data['description'] ?? $immeuble->description);
         $data['nb_apartments'] = e($data['nb_apartments'] ?? $immeuble->nb_apartments);
         $data['nb_available'] = $data['nb_available'] ?? $data['nb_apartments'] ;
+        $data['manager_id'] = $data['manager_id'] ?? $data['manager_id'] ;
 
         return $this->immeubleRepository->update($id, $data);
     }

@@ -100,6 +100,7 @@ class ImmeubleController extends Controller
             'nb_available' => 'nullable|integer|min:0',
             'nb_occupied' => 'nullable|integer|min:0',
             'status' => 'nullable|string|in:actif,inactif',
+            'manager_id' => 'required|integer|exists:users,id',
         ]);
 
         $updated = $this->immeubleService->update($id, $validated);

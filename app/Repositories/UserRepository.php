@@ -98,4 +98,52 @@ class UserRepository
             ->orderBy('name', 'asc')
             ->get();
     }
+
+    // tous les locataires sans contrat (admin)
+    public function locatairesSansContrat()
+    {
+        return User::where('role', 'locataire')
+            ->whereDoesntHave('contrats', function ($q) {
+                $q->where('status', 'actif');
+            })
+            ->get();
+    }
+
+    // locataires sans contrat par gestionnaire
+    public function locatairesSansContratByManager(int $managerId)
+    {
+        return User::where('role', 'locataire')
+            ->where('manager_id', $managerId)
+            ->whereDoesntHave('contrats', function ($q) {
+                $q->where('status', 'actif');
+            })
+            ->get();
+    }
+
+    //admins et manager du locataire
+    // Récupérer tous les admins + le manager du locataire
+    public function getAdminsAndTenantManager(User $tenant)
+    {
+        // admins
+        $admins = User::where('role', 'admin')->get();
+
+        // gestionnaire de l’immeuble du locataire
+        $manager = null;
+
+        if ($tenant->appartement && $tenant->appartement->immeuble) {
+            $manager = $tenant->appartement->immeuble->manager;
+        }
+
+        return $manager
+            ? $admins->push($manager)
+            : $admins;
+    }
+
+    //profil
+    public function getProfil(int $id)
+    {
+        return User::with(['manager'])->find($id);
+    }
+
+
 }

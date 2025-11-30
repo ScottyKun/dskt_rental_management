@@ -10,7 +10,7 @@
             <i class="fa-solid fa-house-chimney text-3xl text-blue-500"></i>
             <div>
                 <h3 class="text-xl font-semibold">{{ $stats['total'] }}</h3>
-                <p class="text-gray-600">Total Appartements</p>
+                <p class="text-gray-600">Capacité total</p>
             </div>
         </div>
 

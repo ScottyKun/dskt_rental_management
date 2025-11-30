@@ -119,8 +119,10 @@
                 <!-- Séparateur -->
                 <hr class="my-3 border-gray-700 opacity-30">
                 <li>
-                    <a href="#" class="flex items-center px-4 py-2 rounded-lg mx-2 
-                        hover:bg-blue-600 hover:text-white transition text-gray-300">
+                    <a href="{{ route('contrats.index') }}" 
+                                class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('contrats.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
                         <i class="fa-solid fa-file-contract mr-3 text-lg"></i>
                         <span x-show="open" class="text-sm font-medium">Contrats</span>
                     </a>
@@ -141,8 +143,10 @@
                 <!-- Locataire -->
                 @if(auth()->user()->role === 'locataire')
                 <li>
-                    <a href="#" class="flex items-center px-4 py-2 rounded-lg mx-2 
-                        hover:bg-blue-600 hover:text-white transition text-gray-300">
+                    <a href="{{ route('tenant.logement') }}" 
+                             class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('tenant.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
                         <i class="fa-solid fa-house mr-3 text-lg"></i>
                         <span x-show="open" class="text-sm font-medium">Mon logement</span>
                     </a>
@@ -151,8 +155,10 @@
                 <hr class="my-3 border-gray-700 opacity-30">
 
                 <li>
-                    <a href="#" class="flex items-center px-4 py-2 rounded-lg mx-2 
-                        hover:bg-blue-600 hover:text-white transition text-gray-300">
+                    <a href="{{ route('contrats.index') }}" 
+                        class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('contrats.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
                         <i class="fa-solid fa-file-contract mr-3 text-lg"></i>
                         <span x-show="open" class="text-sm font-medium">Mes contrats</span>
                     </a>

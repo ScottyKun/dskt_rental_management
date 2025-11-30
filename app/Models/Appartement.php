@@ -31,5 +31,15 @@ class Appartement extends Model
         return $this->belongsTo(User::class, 'locataire_id');
     }
 
+    public function contrats()
+    {
+        return $this->hasMany(Contrat::class, 'appartement_id');
+    }
+
+    public function contratActif()
+    {
+        return $this->hasOne(Contrat::class, 'appartement_id')
+                    ->where('status', 'actif');
+    }
 
 }
