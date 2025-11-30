@@ -6,7 +6,7 @@
 
 **/.classpath
 **/.dockerignore
-**/.env
+!**/.env
 **/.git
 **/.gitignore
 **/.project
@@ -30,6 +30,6 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
-**/vendor
+!**/vendor
 LICENSE
 README.md
