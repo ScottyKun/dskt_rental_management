@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     libsqlite3-dev \
     postgresql-client \
     procps \
-    && docker-php-ext-install pdo pdo_mysql pdo pdo_sqlite \
+    && docker-php-ext-install pdo pdo_pgsql pgsql pdo_sqlite \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip bcmath opcache intl exif pcntl \
     && pecl install redis \

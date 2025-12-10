@@ -9,17 +9,17 @@ services:
     environment:
       APP_ENV: production
       APP_DEBUG: true
-      DB_CONNECTION: mysql
-      DB_HOST: mariadb
-      DB_PORT: 3306
-      DB_DATABASE: laravel_prod
-      DB_USERNAME: laravel
-      DB_PASSWORD: secretProd123
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: dskt_prod
+      DB_USERNAME: andy
+      DB_PASSWORD: famproject
       CACHE_DRIVER: redis
       SESSION_DRIVER: redis
       REDIS_HOST: redis
     depends_on:
-      - mariadb
+      - postgres
       - redis
     networks:
       - internal
@@ -33,17 +33,16 @@ services:
       - "traefik.docker.network=traefik-public"
 
   # Base de données
-  mariadb:
-    image: mariadb:11
-    container_name: mariadb
-    restart: unless-stopped
+  postgres:
+    image: postgres
+    container_name: postgres_db
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootProd123
-      MYSQL_DATABASE: laravel_prod
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: secretProd123
+      POSTGRES_USER: andy
+      POSTGRES_PASSWORD: famproject
+      POSTGRES_DB: dskt_prod
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - pgdata:/var/lib/postgresql/data
     networks:
       - internal
 
@@ -55,28 +54,34 @@ services:
     networks:
       - internal
 
-  # Adminer
-  adminer:
-    image: adminer
-    container_name: adminer
-    restart: unless-stopped
-    depends_on:
-      - mariadb
+  # PgAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dskt.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     networks:
       - internal
       - traefik-public
+    depends_on:
+      - postgres
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.adminer.rule=Host(`famproject.cloud`) && PathPrefix(`/adminer`)"
-      - "traefik.http.routers.adminer.entrypoints=websecure"
-      - "traefik.http.routers.adminer.tls.certresolver=leresolver"
-      - "traefik.http.middlewares.adminer-strip.stripprefix.prefixes=/adminer"
-      - "traefik.http.routers.adminer.middlewares=adminer-strip"
-      - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+      - "traefik.http.routers.pgadmin.rule=Host(`famproject.cloud`) && PathPrefix(`/pgadmin`)"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
+      - "traefik.http.routers.pgadmin.tls.certresolver=leresolver"
+      - "traefik.http.middlewares.pgadmin-strip.stripprefix.prefixes=/pgadmin"
+      - "traefik.http.routers.pgadmin.middlewares=pgadmin-strip"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik-public"
-
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+  
 volumes:
-  mariadb_data:
+  pgdata:
+  pgadmin:
 
 networks:
   internal:
