@@ -76,6 +76,8 @@ services:
       - "traefik.http.routers.pgadmin.middlewares=pgadmin-strip"
       - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
       - "traefik.docker.network=traefik-public"
+    ports:
+    - "5050:80"
     volumes:
       - pgadmin:/var/lib/pgadmin
   
