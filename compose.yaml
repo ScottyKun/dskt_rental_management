@@ -42,7 +42,7 @@ services:
       POSTGRES_PASSWORD: famproject
       POSTGRES_DB: dskt_prod
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     networks:
       - internal
 
