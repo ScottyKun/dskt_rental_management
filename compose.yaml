@@ -1,35 +1,41 @@
-version: "3.9"
-
 services:
-
+  # Application Laravel
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel-app-prod
+    container_name: laravel-app
     restart: unless-stopped
-    volumes:
-      - .:/var/www
+    environment:
+      APP_ENV: production
+      APP_DEBUG: true
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_DATABASE: laravel_prod
+      DB_USERNAME: laravel
+      DB_PASSWORD: secretProd123
+      CACHE_DRIVER: redis
+      SESSION_DRIVER: redis
+      REDIS_HOST: redis
     depends_on:
       - mariadb
       - redis
+    networks:
+      - internal
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.laravel.rule=Host(`famproject.cloud`)"
+      - "traefik.http.routers.laravel.entrypoints=websecure"
+      - "traefik.http.routers.laravel.tls.certresolver=leresolver"
+      - "traefik.http.services.laravel.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik-public"
 
-  nginx:
-    image: nginx:latest
-    container_name: laravel-nginx-prod
-    restart: unless-stopped
-    ports:
-      - "8080:80"        # en prod tu peux mettre derrière un reverse proxy
-      - "443:443"      # SSL à ajouter plus tard
-    volumes:
-      - .:/var/www
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - app
-
+  # Base de données
   mariadb:
     image: mariadb:11
-    container_name: mariadb-prod
+    container_name: mariadb
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootProd123
@@ -37,30 +43,42 @@ services:
       MYSQL_USER: laravel
       MYSQL_PASSWORD: secretProd123
     volumes:
-      - mariadb_prod_data:/var/lib/mysql
-    ports:
-      - "3307:3306"    # accessible seulement local ou via VPN en prod
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - internal
 
+  # Cache Redis
   redis:
     image: redis:7
-    container_name: redis-prod
+    container_name: redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"    # sécuriser en prod, firewall + mot de passe si besoin
+    networks:
+      - internal
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin-prod
+  # Adminer
+  adminer:
+    image: adminer
+    container_name: adminer
     restart: unless-stopped
-    environment:
-      PMA_HOST: mariadb
-      PMA_USER: root
-      PMA_PASSWORD: rootProd123
-    ports:
-      - "8081:80"  # accessible depuis ton navigateur local
     depends_on:
       - mariadb
-
+    networks:
+      - internal
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adminer.rule=Host(`famproject.cloud`) && PathPrefix(`/adminer`)"
+      - "traefik.http.routers.adminer.entrypoints=websecure"
+      - "traefik.http.routers.adminer.tls.certresolver=leresolver"
+      - "traefik.http.middlewares.adminer-strip.stripprefix.prefixes=/adminer"
+      - "traefik.http.routers.adminer.middlewares=adminer-strip"
+      - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik-public"
 
 volumes:
-  mariadb_prod_data:
+  mariadb_data:
+
+networks:
+  internal:
+  traefik-public:
+    external: true
