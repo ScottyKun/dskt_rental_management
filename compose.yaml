@@ -74,7 +74,7 @@ services:
       - "traefik.http.routers.pgadmin.tls.certresolver=leresolver"
       - "traefik.http.middlewares.pgadmin-strip.stripprefix.prefixes=/pgadmin"
       - "traefik.http.routers.pgadmin.middlewares=pgadmin-strip"
-      - "traefik.http.services.pgadmin.loadbalancer.server.port=8080"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
       - "traefik.docker.network=traefik-public"
     volumes:
       - pgadmin:/var/lib/pgadmin
