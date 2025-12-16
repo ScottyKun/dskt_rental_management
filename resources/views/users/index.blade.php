@@ -79,7 +79,14 @@
                     <td class="px-6 py-4">{{ $user->phone }}</td>
                     <td class="px-6 py-4">{{ $user->address }}</td>
                     <td class="px-6 py-4">
-                        {{ $user->manager ? $user->manager->name . ' ' . $user->manager->surname : 'Non assigné' }}
+                        @if(in_array($user->role, ['admin', 'gestionnaire']))
+                            -
+                        @else
+                            {{ $user->manager
+                                ? $user->manager->name . ' ' . $user->manager->surname
+                                : 'Non assigné'
+                            }}
+                        @endif
                     </td>
 
                     <td class="px-6 py-4 flex space-x-2">

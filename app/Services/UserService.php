@@ -25,6 +25,12 @@ class UserService{
             ]);
         }
 
+        // Nettoyage manager_id
+        if ($data['manager_id']==='') {
+            $data['manager_id'] = null;
+        }
+
+
         $data['password'] = Hash::make($data['password']);
         $data['name'] = e($data['name']);
         $data['email'] = e($data['email']);
@@ -32,7 +38,7 @@ class UserService{
         $data['phone'] = e($data['phone']);
         $data['address'] = e($data['address']);
         $data['is_validated'] = true;
-        $data['manager_id'] = e($data['manager_id']);
+        //$data['manager_id'] = e($data['manager_id']);
 
         // Assigner un manager si c'est un locataire
         if ($data['role'] === 'locataire' && !isset($data['manager_id'])) {

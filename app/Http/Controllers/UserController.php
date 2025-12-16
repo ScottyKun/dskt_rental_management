@@ -51,7 +51,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'role' => 'required|in:locataire,admin,gestionnaire',
-            'manager_id'=> 'required',
+            'manager_id'=> 'nullable|integer|exists:users,id',
         ]);
 
         $admin = Auth::user(); // utilisateur connecté, pour création de gestionnaire
@@ -84,7 +84,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'role' => 'sometimes|in:locataire,admin,gestionnaire',
-            'manager_id'=> 'required',
+            'manager_id'=> 'nullable|integer|exists:users,id',
         ]);
 
         $updated = $this->userService->update($id, $validated);

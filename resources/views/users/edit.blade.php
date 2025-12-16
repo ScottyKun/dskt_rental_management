@@ -62,7 +62,7 @@
         <div x-show="role === 'locataire'" x-transition>
             <label class="block mb-1 font-semibold">Gestionnaire</label>
             <select name="manager_id" x-ref="manager"
-                    class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" >
                 <option value="">-- Sélectionner un gestionnaire --</option>
                 @foreach($managers as $manager)
                     <option value="{{ $manager->id }}" {{ old('manager_id', $user->manager_id) == $manager->id ? 'selected' : '' }}>
