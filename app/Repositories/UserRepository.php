@@ -145,5 +145,10 @@ class UserRepository
         return User::with(['manager'])->find($id);
     }
 
+    // les locataires
+    public function getLocataires()
+    {
+        return User::where('role', 'locataire')->get();
+    }
 
 }

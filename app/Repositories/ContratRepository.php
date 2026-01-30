@@ -56,7 +56,7 @@ class ContratRepository
         }
 
         return $query->orderBy('start_date', 'desc')->paginate($perPage);
-}
+    }
 
 
     //rechercher par id

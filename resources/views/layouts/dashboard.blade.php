@@ -53,9 +53,7 @@
                         <span x-show="open" class="text-sm font-medium">Messages</span>
                     </a>
                 </li>
-                <!-- Séparateur -->
-                <hr class="my-3 border-gray-700 opacity-30">
-
+                
                 <!-- Admin -->
                 @if(auth()->user()->role === 'admin')
                 <li>
@@ -65,15 +63,6 @@
                                 {{ request()->routeIs('users.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
                         <i class="fa-solid fa-users mr-3 text-lg"></i>
                         <span x-show="open" class="text-sm font-medium">Utilisateurs</span>
-                    </a>
-                </li>
-                <!-- Séparateur -->
-                <hr class="my-3 border-gray-700 opacity-30">
-                <li>
-                    <a href="#" class="flex items-center px-4 py-2 rounded-lg mx-2 
-                        hover:bg-blue-600 hover:text-white transition text-gray-300">
-                        <i class="fa-solid fa-money-bill-wave mr-3 text-lg"></i>
-                        <span x-show="open" class="text-sm font-medium">Paiements</span>
                     </a>
                 </li>
                 @endif
@@ -127,6 +116,26 @@
                         <span x-show="open" class="text-sm font-medium">Contrats</span>
                     </a>
                 </li>
+                <hr class="my-3 border-gray-700 opacity-30">
+
+                <li>
+                  <a href="{{ route('payments.index') }}" 
+                             class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('payments.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
+                        <i class="fa-solid fa-money-bill-wave mr-3 text-lg"></i>
+                        <span x-show="open" class="text-sm font-medium">Paiements</span>
+                </a>
+                <!-- Séparateur -->
+                <hr class="my-3 border-gray-700 opacity-30">
+                <a href="{{ route('payments.index') }}" 
+                             class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('receipts.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
+                        <i class="fa-solid fa-receipt mr-3 text-lg"></i>
+                        <span x-show="open" class="text-sm font-medium">Reçus</span>
+                </a>
+                </li>
                 <!-- Séparateur -->
                 <hr class="my-3 border-gray-700 opacity-30">
                 <li>
@@ -137,8 +146,6 @@
                     </a>
                 </li>
                 @endif
-                <!-- Séparateur -->
-                <hr class="my-3 border-gray-700 opacity-30">
 
                 <!-- Locataire -->
                 @if(auth()->user()->role === 'locataire')
@@ -161,16 +168,6 @@
                                 {{ request()->routeIs('contrats.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
                         <i class="fa-solid fa-file-contract mr-3 text-lg"></i>
                         <span x-show="open" class="text-sm font-medium">Mes contrats</span>
-                    </a>
-                </li>
-                <!-- Séparateur -->
-                <hr class="my-3 border-gray-700 opacity-30">
-
-                <li>
-                    <a href="#" class="flex items-center px-4 py-2 rounded-lg mx-2 
-                        hover:bg-blue-600 hover:text-white transition text-gray-300">
-                        <i class="fa-solid fa-money-bill-wave mr-3 text-lg"></i>
-                        <span x-show="open" class="text-sm font-medium">Mes paiements</span>
                     </a>
                 </li>
                 @endif

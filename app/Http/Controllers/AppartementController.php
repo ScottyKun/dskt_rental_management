@@ -30,7 +30,9 @@ class AppartementController extends Controller
     //create
     public function create(){ 
         $data=$this->appartementService->getFormData();
-        return view('appartements.create',$data);
+        $immeubles = $data['immeubles'];
+        $locataires = $data['locataires'];
+        return view('appartements.create',compact( 'immeubles', 'locataires'));
     }
 
     //store

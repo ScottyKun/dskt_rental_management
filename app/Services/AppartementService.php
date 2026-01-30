@@ -250,7 +250,6 @@ class AppartementService{
     public function getFormData(?int $id = null)
     {
         $user = Auth::user();
-        $appartement= $this->appartementRepository->findById($id);
 
         // Immeubles selon le rôle
         if ($user->role === 'admin') {
@@ -267,11 +266,16 @@ class AppartementService{
         }
 
         // Si on édite un appartement, inclure son locataire actuel
-        if ($appartement && $appartement->locataire) {
-            $locataires->push($appartement->locataire);
-            // Supprime les doublons par id
-            $locataires = $locataires->unique('id');
+        if ($id !== null) {
+            $appartement = $this->appartementRepository->findById($id);
+            
+            if ($appartement && $appartement->locataire) {
+                $locataires->push($appartement->locataire);
+                // Supprime les doublons par id
+                $locataires = $locataires->unique('id');
+            }
         }
+        
         
 
         return compact('immeubles', 'locataires');

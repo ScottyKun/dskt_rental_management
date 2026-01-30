@@ -9,6 +9,7 @@ use App\Http\Controllers\ImmeubleController;
 use App\Http\Controllers\AppartementController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\ContratController;
+use App\Http\Controllers\PaymentController;
 
 Route::get("/", fn() => redirect("login"));
 
@@ -168,5 +169,31 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     //mon logement
     Route::get('/tenant/logement', [AppartementController::class,'locataire'])->name('tenant.logement');
+
+});
+
+//payment et receipt routes
+Route::middleware(['auth'])->group(function () {
+    
+    Route::get('/payments', [PaymentController::class,'index'])->name('payments.index');
+    
+    //payments
+    Route::get('/payments/create', [PaymentController::class,'create'])->name('payments.create');
+    Route::post('/payments', [PaymentController::class,'store'])->name('payments.store');
+    Route::get('/payments/edit/{id}', [PaymentController::class,'editPayment'])->name('payments.edit');
+    Route::put('/payments/{id}', [PaymentController::class,'updatePayment'])->name('payments.update');
+    Route::delete('/payments/{id}', [PaymentController::class,'destroyPayment'])->name('payments.destroy');
+    Route::get('/payments/search', [PaymentController::class,'searchPayment'])->name('payments.search');
+    Route::post('/payments/send', [PaymentController::class,'sendPaymentRequest'])->name('payments.sendRequest');
+    Route::get('/payments/{id}', [PaymentController::class,'showPayment'])->name('payments.show');
+    
+    //receipts
+    Route::get('/receipts/periods/{id}', [PaymentController::class,'formGenerateReceipt'])->name('receipts.periods');
+    Route::post('/receipts/generate/{id}', [PaymentController::class,'generateReceipt'])->name('receipts.generate');
+    Route::get('/receipts/edit/{id}', [PaymentController::class,'editReceipt'])->name('receipts.edit');
+    Route::put('/receipts/{id}', [PaymentController::class,'updateReceipt'])->name('receipts.update');
+    Route::delete('/receipts/{id}', [PaymentController::class,'destroyReceipt'])->name('receipts.destroy');
+    Route::get('/receipts/search', [PaymentController::class,'searchReceipts'])->name('receipts.search');
+    Route::get('/payments/receipt/{id}', [PaymentController::class,'showReceipt'])->name('receipts.show');
 
 });

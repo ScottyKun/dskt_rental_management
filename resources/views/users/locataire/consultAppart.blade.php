@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('dashboard-content')
-<div class="max-w-4xl mx-auto mt-6">
+<div class="max-w-4xl mx-auto mt-8">
 
     @if($appartement)
         <div class="bg-white shadow-lg rounded-xl p-6">
@@ -41,14 +41,60 @@
                     </p>
                 </div>
             </div>
-
+            <hr class="my-6">
             {{-- Actions locataire --}}
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="{{ route('contrats.index') }}" class="...">Voir mes contrats</a>
-                <a href="#" class="...">Payer mon loyer</a>
-                <a href="#" class="...">Demander un préavis de départ</a>
-                <a href="#" class="...">Signaler une panne</a>
-                <a href="#" class="...">Voir mes factures</a>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+                <!-- Voir mes contrats -->
+                <a href="{{ route('contrats.index') }}"
+                class="flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-6h13m-2 0V5H6v6H2l10 10 10-10h-5z"/>
+                    </svg>
+                    Mes contrats
+                </a>
+
+                <!-- Payer mon loyer -->
+                <a href="{{ route('payments.create') }}"
+                class="flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3M12 2a10 10 0 100 20 10 10 0 000-20z"/>
+                    </svg>
+                    Payer mon loyer
+                </a>
+
+                <!-- Demander un préavis de départ -->
+                <a href="{{ route('messages.request.create') }}"
+                class="flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 7h18M3 12h18M3 17h18"/>
+                    </svg>
+                    Demander un préavis
+                </a>
+
+                <!-- Signaler une panne -->
+                <a href="{{ route('messages.request.create') }}"
+                class="flex items-center justify-center bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18.364 5.636l-12.728 12.728"/>
+                    </svg>
+                    Signaler une panne
+                </a>
+
+                <!-- Voir mes factures -->
+                <a href="{{ route('payments.index') }}"
+                class="flex items-center justify-center bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h18v18H3z"/>
+                    </svg>
+                    Mes factures
+                </a>
+
             </div>
         </div>
 

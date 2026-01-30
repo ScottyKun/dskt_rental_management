@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'DSKT Rental')</title>
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -17,7 +18,7 @@
     <header class="bg-white shadow-sm px-6 py-2 flex justify-between items-center sticky top-0 z-40">
         <!-- Logo -->
         <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-building text-blue-500 text-xl"></i>
+            <i><img src="{{ asset('favicon.ico') }}" alt="" class="w-9 h-9 mr-3"></i>
             <span class="text-lg font-semibold text-gray-800">DSKT Rental</span>
         </div>
 

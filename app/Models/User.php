@@ -73,5 +73,31 @@ class User extends Authenticatable
         return $this->hasMany(Contrat::class, 'tenant_id');
     }
 
+    //one to many avec payment
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'tenant_id');
+    }
+
+    //one to many avec receipt
+    public function receipts()
+    {
+        return $this->hasMany(Receipt::class, 'tenant_id');
+    }
+
+    //paiement encaisse par le gestionnaire
+    public function collectedPayments()
+    {
+        return $this->hasMany(Payment::class, 'manager_id');
+    }
+
+    //receipts generator
+    public function generatedReceipts()
+    {
+        return $this->hasMany(Receipt::class, 'generated_by');
+    }
+
+
+
 
 }

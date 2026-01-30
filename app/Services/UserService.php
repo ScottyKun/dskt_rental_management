@@ -139,4 +139,10 @@ class UserService{
         return $this->userRepository->getProfil($id);
     }
 
+    //locataire
+    public function getLocataires()
+    {
+        return $this->userRepository->getLocataires();
+    }
+
 }
