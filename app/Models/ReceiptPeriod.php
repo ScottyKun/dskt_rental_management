@@ -12,6 +12,11 @@ class ReceiptPeriod extends Model
         'period_end'
     ];
 
+    protected $casts = [
+        'period_start' => 'datetime',
+        'period_end'   => 'datetime',
+    ];
+
     public function receipt()
     {
         return $this->belongsTo(Receipt::class);

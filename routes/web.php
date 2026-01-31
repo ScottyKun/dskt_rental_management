@@ -176,6 +176,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     
     Route::get('/payments', [PaymentController::class,'index'])->name('payments.index');
+    Route::get('/receipts', [PaymentController::class,'indexReceipts'])->name('receipts.index');
     
     //payments
     Route::get('/payments/create', [PaymentController::class,'create'])->name('payments.create');

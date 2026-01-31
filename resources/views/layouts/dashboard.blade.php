@@ -53,7 +53,7 @@
                         <span x-show="open" class="text-sm font-medium">Messages</span>
                     </a>
                 </li>
-                
+    
                 <!-- Admin -->
                 @if(auth()->user()->role === 'admin')
                 <li>
@@ -116,26 +116,7 @@
                         <span x-show="open" class="text-sm font-medium">Contrats</span>
                     </a>
                 </li>
-                <hr class="my-3 border-gray-700 opacity-30">
 
-                <li>
-                  <a href="{{ route('payments.index') }}" 
-                             class="flex items-center px-4 py-2 rounded-lg mx-2 
-                                hover:bg-blue-600 hover:text-white transition 
-                                {{ request()->routeIs('payments.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
-                        <i class="fa-solid fa-money-bill-wave mr-3 text-lg"></i>
-                        <span x-show="open" class="text-sm font-medium">Paiements</span>
-                </a>
-                <!-- Séparateur -->
-                <hr class="my-3 border-gray-700 opacity-30">
-                <a href="{{ route('payments.index') }}" 
-                             class="flex items-center px-4 py-2 rounded-lg mx-2 
-                                hover:bg-blue-600 hover:text-white transition 
-                                {{ request()->routeIs('receipts.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
-                        <i class="fa-solid fa-receipt mr-3 text-lg"></i>
-                        <span x-show="open" class="text-sm font-medium">Reçus</span>
-                </a>
-                </li>
                 <!-- Séparateur -->
                 <hr class="my-3 border-gray-700 opacity-30">
                 <li>
@@ -171,6 +152,26 @@
                     </a>
                 </li>
                 @endif
+                <hr class="my-3 border-gray-700 opacity-30">
+                <li>
+                  <a href="{{ route('payments.index') }}" 
+                             class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('payments.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
+                        <i class="fa-solid fa-money-bill-wave mr-3 text-lg"></i>
+                        <span x-show="open" class="text-sm font-medium">Paiements</span>
+                </a>
+                <!-- Séparateur -->
+                <hr class="my-3 border-gray-700 opacity-30">
+                <a href="{{ route('receipts.index') }}" 
+                             class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('receipts.*') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
+                        <i class="fa-solid fa-receipt mr-3 text-lg"></i>
+                        <span x-show="open" class="text-sm font-medium">Reçus</span>
+                </a>
+                </li>
+                
             </ul>
         </nav>
 

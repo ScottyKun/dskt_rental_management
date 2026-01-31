@@ -15,6 +15,10 @@ class Receipt extends Model
         'generated_at'
     ];
 
+    protected $casts = [
+        'generated_at' => 'datetime',
+    ];
+
     // Relation avec le paiement
     public function payment()
     {

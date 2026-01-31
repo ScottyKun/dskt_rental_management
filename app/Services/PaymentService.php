@@ -61,17 +61,19 @@ class PaymentService
                 // Vérifier si l'utilisateur veut créer la méthode de paiement
                 if (!isset($data['create_payment_method']) || $data['create_payment_method'] !== 'yes') {
                     throw ValidationException::withMessages([
-                        'payment_method' => 'La méthode de paiement en espèces n\'existe pas. Voulez-vous la créer ?',
-                        'requires_confirmation' => true
+                        'payment_method' => 'Pas de méthode de paiement. Voulez-vous la créer ?',
+                    ])->errorBag('confirmation');
+                }
+                
+                if ($data['create_payment_method'] == 'yes'){
+                    // Créer la méthode de paiement CASH
+                    $cashPaymentMethod = $this->paymentRepository->create([
+                        'code' => 'CASH',
+                        'label' => 'Espèces',
+                        'is_active' => true
                     ]);
                 }
-
-                // Créer la méthode de paiement CASH
-                $cashPaymentMethod = $this->paymentRepository->create([
-                    'code' => 'CASH',
-                    'label' => 'Espèces',
-                    'is_active' => true
-                ]);
+                
             }
 
             // Créer le paiement
@@ -211,8 +213,7 @@ class PaymentService
             }
 
             $data['amount'] = e($data['amount']) ?? $payment->amount;
-            $data['currency'] = e($data['currency']) ?? $payment->currency;
-            $data['status'] = e($data['status']) ?? $payment->status;
+            $data['tenant_id'] = e($data['tenant_id']) ?? $payment->tenant_id;
 
             $payment->paid_at = now();
             return $this->paymentRepository->updatePayment($id, $data);

@@ -34,7 +34,7 @@
             <div>
                 <p class="text-gray-600">
                     <span class="font-semibold">Montant :</span>
-                    {{ number_format($payment->amount, 2, ',', ' ') }} €
+                    {{ number_format($payment->amount, 2, ',', ' ') }} CFA
                 </p>
 
                 <p class="text-gray-600">

@@ -9,7 +9,7 @@
                 Reçu {{ $receipt->receipt_number }}
             </h2>
             <span class="text-sm font-medium text-gray-500">
-                {{ number_format($receipt->total_amount, 2, ',', ' ') }} €
+                {{ number_format($receipt->total_amount, 2, ',', ' ') }} CFA
             </span>
         </div>
 
@@ -25,18 +25,20 @@
                     #{{ $receipt->payment->id }}
                 </p>
 
-                <p class="text-gray-600">
-                    <span class="font-semibold">Période :</span>
-                    {{ $receipt->periods->period_start->format('d/m/Y') }}
-                    →
-                    {{ $receipt->periods->period_end->format('d/m/Y') }}
-                </p>
+                @foreach ($receipt->periods as $period)
+                    <p class="text-gray-600">
+                        <span class="font-semibold">Période :</span>
+                        {{ $period->period_start->format('d/m/Y') }}
+                        →
+                        {{ $period->period_end->format('d/m/Y') }}
+                    </p>
+                @endforeach
             </div>
 
             <div>
                 <p class="text-gray-600">
                     <span class="font-semibold">Généré par :</span>
-                    {{ $receipt->generatedBy->name }} {{ $receipt->generatedBy->surname }}
+                    {{ $receipt->generator->name }} {{ $receipt->generator->surname }}
                 </p>
 
                 <p class="text-gray-600">

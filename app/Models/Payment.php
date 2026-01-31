@@ -18,6 +18,10 @@ class Payment extends Model
         'paid_at'
     ];
 
+    protected $casts = [
+        'paid_at' => 'datetime',
+    ];
+
     // Le locataire qui paye
     public function tenant()
     {
@@ -39,7 +43,7 @@ class Payment extends Model
     // Reçu(s) associés
     public function receipts()
     {
-        return $this->hasMany(Receipt::class);
+        return $this->hasOne(Receipt::class);
     }
 
     // Scope : paiements confirmés

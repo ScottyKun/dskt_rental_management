@@ -28,9 +28,15 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         $payments = $this->paymentService->getAllPayments();
+
+        return view('payments.index', compact('payments'));
+    }
+
+    public function indexReceipts(Request $request)
+    {
         $receipts = $this->paymentService->getAllReceipts();
 
-        return view('payments.index', compact('payments', 'receipts'));
+        return view('payments.indexRec', compact('receipts'));
     }
     //create
     public function create()
@@ -54,7 +60,8 @@ class PaymentController extends Controller
         $data = $request->validate([
             'tenant_id' => 'required|exists:users,id',
             'manager_id' => 'required|exists:users,id',
-            'payment_method_id' => 'optional|exists:payment_methods,id',
+            'payment_method_id' => 'nullable',
+            'create_payment_method' => 'nullable|in:yes,no',
             'amount' => 'required|numeric|min:0',
         ]);
 
@@ -75,7 +82,7 @@ class PaymentController extends Controller
     {
         try {
             $validated = $request->validate([
-                'periods' => 'required|array',
+                'periods' => 'array',
                 'periods.*.period_start' => 'required|date',
                 'periods.*.period_end' => 'required|date|after_or_equal:periods.*.period_start',
             ]);
@@ -88,7 +95,7 @@ class PaymentController extends Controller
                 $user->id
             );
 
-            return redirect()->route('payments.show-receipt', $receipt->id)
+            return redirect()->route('receipts.show', $receipt->id)
                 ->with('success', 'Reçu généré avec succès.');
 
         } catch (ValidationException $e) {
@@ -108,7 +115,6 @@ class PaymentController extends Controller
     public function updateReceipt(Request $request, $id)
     {
         $data = $request->validate([
-            'periods' => 'required|array',
             'periods.*.period_start' => 'required|date',
             'periods.*.period_end' => 'required|date|after_or_equal:periods.*.period_start',
         ]);
@@ -117,7 +123,7 @@ class PaymentController extends Controller
         if (!$updated) {
             return redirect()->back()->withInput()->with('error', 'Erreur lors de la mise à jour du reçu.');
         }
-        return redirect()->route('payments.index')->with('success', 'Reçu mis à jour avec succès.');
+        return redirect()->route('receipts.index')->with('success', 'Reçu mis à jour avec succès.');
     }
     //edit payment
     public function editPayment($id)
@@ -159,7 +165,7 @@ class PaymentController extends Controller
         if (!$deleted) {
             return redirect()->back()->with('error', 'Erreur lors de la suppression du reçu.');
         }
-        return redirect()->route('payments.index')->with('success', 'Reçu supprimé avec succès.');
+        return redirect()->route('receipts.index')->with('success', 'Reçu supprimé avec succès.');
     }
     //destroy payment
     public function destroyPayment($id)
@@ -197,17 +203,15 @@ class PaymentController extends Controller
     {
         $term = $request->query('q');
         $payments = $this->paymentService->searchPayments($term);
-        $receipts = $this->paymentService->getAllReceipts();
 
-        return view('payments.index', compact('payments', 'receipts'));
+        return view('payments.index', compact('payments'));
     }
     //search receipt
     public function searchReceipt(Request $request)
     {
         $term = $request->query('q');
         $receipts = $this->paymentService->searchReceipts($term);
-         $payments = $this->paymentService->getAllPayments();
-        return view('payments.index', compact('receipts', 'payments'));
+        return view('payments.indexRec', compact('receipts'));
     }
 
 }
