@@ -34,16 +34,23 @@ class MessageController extends Controller
             return redirect()->back()->with('error', 'Message not found.');
         }
 
+        $this->authorizeAccess($message, $user);
+
         return view('messages.consult', compact('message'));
     }
 
     //lire un message
     public function read($id){
-        $message = $this->messageService->readMessage($id); 
-        
+        $user = Auth::user();
+        $message = $this->messageService->getMessageById($id);
+
         if (!$message) {
             return redirect()->back()->with('error', 'Message not found or cannot be marked as read.');
         }
+
+        $this->authorizeAccess($message, $user);
+
+        $message = $this->messageService->readMessage($id);
 
         return redirect()->route('messages.consult',$id)->with('success', 'Message marked as read.');
     }
@@ -51,6 +58,15 @@ class MessageController extends Controller
     //supprimer un message
     public function delete($id)
     {
+        $user = Auth::user();
+        $message = $this->messageService->getMessageById($id);
+
+        if (!$message) {
+            return redirect()->back()->with('error', 'Message not found or could not be deleted.');
+        }
+
+        $this->authorizeAccess($message, $user);
+
         $deleted = $this->messageService->deleteMessage($id);
 
         if (!$deleted) {
@@ -58,6 +74,16 @@ class MessageController extends Controller
         }
 
         return redirect()->route('messages.index')->with('success', 'Message deleted successfully.');
+    }
+
+    /**
+     * Seuls l'expediteur et le destinataire d'un message peuvent le consulter/modifier.
+     */
+    private function authorizeAccess($message, $user): void
+    {
+        if ($message->sender_id !== $user->id && $message->receiver_id !== $user->id) {
+            abort(403, "Vous n'avez pas accès à ce message.");
+        }
     }
 
     //create

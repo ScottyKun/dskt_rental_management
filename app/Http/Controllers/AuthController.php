@@ -24,9 +24,11 @@ class AuthController extends Controller
             'surname'=>'required|string|min:3|max:255',
             'email'=>'required|string|email|max:255|unique:users',
             'password'=> 'required|min:8|confirmed',
-            'role'=>'required|in:locataire,admin,gestionnaire',
-
         ]);
+
+        // Le formulaire public ne permet de créer que des comptes locataires.
+        // Les comptes admin/gestionnaire sont créés uniquement par un admin déjà authentifié (cf. UserController::store).
+        $validated['role'] = 'locataire';
 
         $this->authService->register($validated);
 

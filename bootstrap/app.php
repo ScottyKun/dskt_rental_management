@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'check.validated' => \App\Http\Middleware\CheckValidated::class,
             'must.change.password' => \App\Http\Middleware\CheckMustChangePassword::class,
+            'role' => \App\Http\Middleware\EnsureRole::class,
+            'mfa' => \App\Http\Middleware\EnsureMfaVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

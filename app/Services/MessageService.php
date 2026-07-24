@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\MessageRepository;
 use App\Repositories\UserRepository;
+use App\Notifications\NewMessageNotification;
 
 class MessageService{
     protected $messageRepository;
@@ -28,12 +29,14 @@ class MessageService{
         $receivers = $this->userRepository->findByIdByAdminAndManagers();
 
         foreach ($receivers as $receiver) {
-            $this->messageRepository->create([
+            $message = $this->messageRepository->create([
                 'sender_id' => $senderId,
                 'receiver_id' => $receiver->id,
                 'title' => $title,
                 'content' => $content,
             ]);
+
+            $receiver->notify(new NewMessageNotification($message));
         }
     }
 
@@ -74,13 +77,15 @@ class MessageService{
         $receivers = $this->userRepository->getAdminsAndTenantManager($tenant);
 
         foreach ($receivers as $receiver) {
-            $this->messageRepository->create([
+            $message = $this->messageRepository->create([
                 'sender_id'   => $tenant->id,
                 'receiver_id' => $receiver->id,
                 'title'       => e($data['title']),
                 'content'     => e($data['content']),
                 'is_read'     => false
             ]);
+
+            $receiver->notify(new NewMessageNotification($message));
         }
     }
 }    

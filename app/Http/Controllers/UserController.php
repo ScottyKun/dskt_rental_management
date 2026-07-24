@@ -146,6 +146,11 @@ class UserController extends Controller
 
    //profil
    public function consult(int $id){
+        $currentUser = Auth::user();
+        if ($currentUser->id !== $id && !in_array($currentUser->role, ['admin', 'gestionnaire'], true)) {
+            abort(403, "Vous ne pouvez pas consulter le profil d'un autre utilisateur.");
+        }
+
         $user=$this->userService->getProfil($id);
 
         return view('users.show',compact('user'));

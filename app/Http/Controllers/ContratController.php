@@ -105,6 +105,12 @@ class ContratController extends Controller
     //consult
     public function consult($id){
         $contrat=$this->contratService->findById($id);
+
+        $user = auth()->user();
+        if ($user->role === 'locataire' && $user->id !== $contrat->tenant_id) {
+            abort(403, "Vous ne pouvez pas consulter le contrat d'un autre locataire.");
+        }
+
         return view('contrats.consult',compact('contrat'));
     }
 

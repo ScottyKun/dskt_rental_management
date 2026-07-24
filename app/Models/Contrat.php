@@ -19,6 +19,13 @@ class Contrat extends Model
 
     public $timestamps = true;
 
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'rent_amount' => 'decimal:2',
+        'deposit_amount' => 'decimal:2',
+    ];
+
     //relations
     public function tenant()
     {

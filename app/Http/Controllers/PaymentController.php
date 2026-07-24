@@ -180,13 +180,27 @@ class PaymentController extends Controller
     public function showPayment($id)
     {
         $payment = $this->paymentService->getPaymentById($id);
+        $this->authorizeOwnership($payment->tenant_id);
         return view('payments.showPay', compact('payment'));
     }
     //show receipt
     public function showReceipt($id)
     {
         $receipt = $this->paymentService->getReceiptById($id);
+        $this->authorizeOwnership($receipt->tenant_id);
         return view('payments.showRec', compact('receipt'));
+    }
+
+    /**
+     * Un locataire ne peut consulter que ses propres paiements/reçus.
+     * Admin et gestionnaire ont un accès complet.
+     */
+    private function authorizeOwnership(int $tenantId): void
+    {
+        $user = Auth::user();
+        if ($user->role === 'locataire' && $user->id !== $tenantId) {
+            abort(403, "Vous ne pouvez pas consulter les paiements d'un autre locataire.");
+        }
     }
     //send demande
     public function sendPaymentRequest(Request $request)

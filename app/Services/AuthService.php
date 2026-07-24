@@ -44,6 +44,9 @@ class AuthService{
     public function login(array $credentials): bool{
         if (Auth::attempt($credentials)) {
             session()->regenerate();
+            // Le mot de passe est correct, mais la connexion n'est complète
+            // qu'après vérification du code MFA envoyé par e-mail.
+            session(['mfa_verified' => false]);
             return true;
         }
         throw ValidationException::withMessages([

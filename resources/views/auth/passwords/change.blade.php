@@ -12,6 +12,18 @@
         </h2>
 
         <div x-data="{ show: false }">
+            <label class="block mb-1 font-semibold">Mot de passe actuel</label>
+            <div class="relative">
+                <input :type="show ? 'text' : 'password'" name="current_password"
+                       class="w-full border p-3 rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <button type="button" @click="show = !show"
+                        class="absolute inset-y-0 right-3 text-gray-500">
+                    <i :class="show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+            </div>
+        </div>
+
+        <div x-data="{ show: false }">
             <label class="block mb-1 font-semibold">Nouveau mot de passe</label>
             <div class="relative">
                 <input :type="show ? 'text' : 'password'" name="password" 
