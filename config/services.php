@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'documenso' => [
+        'base_url' => env('DOCUMENSO_BASE_URL'),
+        'api_key' => env('DOCUMENSO_API_KEY'),
+        'webhook_secret' => env('DOCUMENSO_WEBHOOK_SECRET'),
+    ],
+
 ];

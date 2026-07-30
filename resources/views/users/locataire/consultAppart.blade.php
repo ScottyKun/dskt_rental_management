@@ -5,8 +5,8 @@
 
     @if($appartement)
         <div class="bg-white shadow-lg rounded-xl p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-gray-700">{{ $appartement->name }}</h2>
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-700">{{ $appartement->name }}</h2>
                 <span class="text-sm font-medium text-gray-500">
                     {{ ucfirst($appartement->status) }}
                 </span>

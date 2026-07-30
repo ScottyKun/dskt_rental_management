@@ -2,8 +2,8 @@
 
 @section('dashboard-content')
 
-<div class="max-w-3xl mx-auto mt-10">
-    <div class="bg-white shadow-lg rounded-lg p-8">
+<div class="max-w-3xl mx-auto mt-6 sm:mt-10 px-2 sm:px-0">
+    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-8">
 
         <!-- Titre -->
         <h2 class="text-2xl font-bold text-gray-800 mb-6">
@@ -81,9 +81,9 @@
         </div>
 
         <!-- Bouton Modifier -->
-        <div class="mt-8 text-right">
+        <div class="mt-8 text-center sm:text-right">
             <a href="{{ route('users.edit', $user->id) }}"
-               class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+               class="inline-block w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Modifier mes informations
             </a>
         </div>

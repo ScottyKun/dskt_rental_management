@@ -3,13 +3,13 @@
 @section('title', 'Modifier Reçu')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
     <form action="{{ route('receipts.update', $receipt->id) }}" method="POST"
-          class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
+          class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
         @method('PUT')
 
-        <h2 class="text-3xl font-bold text-center text-gray-800">
+        <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">
             <i class="fa-solid fa-receipt text-blue-500 mr-2"></i>Modifier Reçu
         </h2>
 
@@ -64,7 +64,7 @@
         {{-- Période --}}
         <div>
             <label class="block mb-1 font-semibold">Période</label>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input type="date" name="period_start"
                        value="{{ old('period_start', $periods->first()->period_start) }}"
                        class="p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none"

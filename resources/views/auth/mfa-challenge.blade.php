@@ -3,12 +3,12 @@
 @section('title', 'Vérification en 2 étapes')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100">
-    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         <div class="text-center">
             <i class="fa-solid fa-envelope-open-text text-4xl text-blue-500 mb-3"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Vérification en 2 étapes</h2>
-            <p class="text-sm text-gray-500 mt-2">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Vérification en 2 étapes</h2>
+            <p class="text-sm text-gray-500 mt-2 break-words">
                 Un code à 6 chiffres a été envoyé à<br>
                 <span class="font-semibold">{{ $maskedEmail }}</span>
             </p>
@@ -20,7 +20,7 @@
                 <label class="block mb-1 font-semibold">Code de vérification</label>
                 <input type="text" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6"
                     autocomplete="one-time-code" autofocus
-                    class="w-full p-3 border rounded text-center text-2xl tracking-[0.5em] focus:ring-2 focus:ring-blue-500 outline-none"
+                    class="w-full p-3 border rounded text-center text-xl sm:text-2xl tracking-[0.4em] sm:tracking-[0.5em] focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="------" required>
             </div>
 

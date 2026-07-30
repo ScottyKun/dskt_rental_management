@@ -21,3 +21,5 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/documenso/*
+compose.local.documenso.yaml

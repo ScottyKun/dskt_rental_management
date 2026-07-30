@@ -1,12 +1,12 @@
 @extends('layouts.dashboard')
 
 @section('dashboard-content')
-<div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow">
+<div class="max-w-2xl mx-auto bg-white p-4 sm:p-6 rounded-xl shadow">
 
     <form method="POST" action="{{ route('messages.request.store') }}">
 
         @csrf
-        <h2 class="text-3xl font-bold text-center text-gray-800">
+        <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">
             <i class="fa-solid fa-envelope text-blue-500 mr-2"></i>Faire une demande
         </h2>
         <label class="block text-sm font-medium mb-2">Titre du message :</label>

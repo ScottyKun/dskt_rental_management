@@ -12,11 +12,17 @@ class Receipt extends Model
         'tenant_id',
         'total_amount',
         'generated_by',
-        'generated_at'
+        'generated_at',
+        'documenso_envelope_id',
+        'signature_status',
+        'signed_pdf_path',
+        'signed_pdf_sha256',
+        'sent_for_signature_at',
     ];
 
     protected $casts = [
         'generated_at' => 'datetime',
+        'sent_for_signature_at' => 'datetime',
     ];
 
     // Relation avec le paiement

@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureRole::class,
             'mfa' => \App\Http\Middleware\EnsureMfaVerified::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/documenso',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

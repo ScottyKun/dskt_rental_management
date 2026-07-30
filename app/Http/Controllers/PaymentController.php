@@ -179,14 +179,14 @@ class PaymentController extends Controller
     //show paiement
     public function showPayment($id)
     {
-        $payment = $this->paymentService->getPaymentById($id);
+        $payment = $this->paymentService->getPaymentById((int) $id);
         $this->authorizeOwnership($payment->tenant_id);
         return view('payments.showPay', compact('payment'));
     }
     //show receipt
     public function showReceipt($id)
     {
-        $receipt = $this->paymentService->getReceiptById($id);
+        $receipt = $this->paymentService->getReceiptById((int) $id);
         $this->authorizeOwnership($receipt->tenant_id);
         return view('payments.showRec', compact('receipt'));
     }

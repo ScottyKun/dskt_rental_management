@@ -11,6 +11,10 @@ use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\ContratController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MfaController;
+use App\Http\Controllers\ContratDocumentController;
+use App\Http\Controllers\ContratSignatureController;
+use App\Http\Controllers\ReceiptSignatureController;
+use App\Http\Controllers\DocumensoWebhookController;
 
 Route::get("/", fn() => redirect("login"));
 
@@ -19,6 +23,9 @@ Route::get("/register", [AuthController::class, "showRegistrationForm"])->name("
 Route::post("/register", [AuthController::class, "register"]);
 Route::get("/login", [AuthController::class, "showLoginForm"])->name("login");
 Route::post("/login", [AuthController::class, "login"])->middleware('throttle:6,1');
+
+// Webhook Documenso : appele par un service externe, pas de session/CSRF, verification par secret partage
+Route::post('/webhooks/documenso', [DocumensoWebhookController::class, 'handle'])->name('webhooks.documenso');
 
 // Logout : toujours accessible a un utilisateur connecte, meme si le compte
 // n'est pas valide ou doit changer son mot de passe.
@@ -126,6 +133,20 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
     Route::get('/contrats', [ContratController::class, 'index'])->name('contrats.index');
     Route::get('/contrats/{id}', [ContratController::class, 'consult'])->name('contrats.consult');
 
+    // Piece jointe (CNI) : demande/validation reservees a admin+gestionnaire, upload reserve au locataire proprietaire
+    Route::middleware('role:admin,gestionnaire')->group(function () {
+        Route::post('/contrats/{contrat}/document/request', [ContratDocumentController::class, 'request'])->name('contrats.document.request');
+        Route::post('/contrats/{contrat}/document/{document}/validate', [ContratDocumentController::class, 'validateDoc'])->name('contrats.document.validate');
+        Route::post('/contrats/{contrat}/document/{document}/reject', [ContratDocumentController::class, 'reject'])->name('contrats.document.reject');
+    });
+    Route::post('/contrats/{contrat}/document', [ContratDocumentController::class, 'store'])->name('contrats.document.store');
+    Route::get('/contrats/{contrat}/document/{document}/download', [ContratDocumentController::class, 'download'])->name('contrats.document.download');
+
+    // Signature electronique du contrat (Documenso) : envoi reserve a admin/gestionnaire, telechargement ouvert au proprietaire
+    Route::post('/contrats/{contrat}/signature/send', [ContratSignatureController::class, 'send'])
+        ->name('contrats.signature.send')->middleware('role:admin,gestionnaire');
+    Route::get('/contrats/{contrat}/pdf', [ContratSignatureController::class, 'download'])->name('contrats.pdf');
+
     // Locataire routes
     Route::get('/tenant/logement', [AppartementController::class, 'locataire'])->name('tenant.logement');
 
@@ -136,6 +157,12 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
     Route::get('/receipts', [PaymentController::class, 'indexReceipts'])->name('receipts.index');
     Route::get('/payments/{id}', [PaymentController::class, 'showPayment'])->name('payments.show');
     Route::get('/payments/receipt/{id}', [PaymentController::class, 'showReceipt'])->name('receipts.show');
+
+    // Signature electronique du recu (Documenso) : reservee a admin/gestionnaire (le locataire ne signe pas)
+    Route::middleware('role:admin,gestionnaire')->group(function () {
+        Route::post('/receipts/{receipt}/signature/send', [ReceiptSignatureController::class, 'send'])->name('receipts.signature.send');
+    });
+    Route::get('/receipts/{receipt}/pdf', [ReceiptSignatureController::class, 'download'])->name('receipts.pdf');
 
     Route::middleware('role:admin,gestionnaire')->group(function () {
         Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');

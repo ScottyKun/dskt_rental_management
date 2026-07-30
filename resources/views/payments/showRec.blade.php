@@ -3,9 +3,9 @@
 @section('dashboard-content')
 <div class="max-w-4xl mx-auto mt-6">
 
-    <div class="bg-white shadow-lg rounded-xl p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-gray-700">
+    <div class="bg-white shadow-lg rounded-xl p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-700">
                 Reçu {{ $receipt->receipt_number }}
             </h2>
             <span class="text-sm font-medium text-gray-500">
@@ -53,8 +53,44 @@
             </div>
         </div>
 
-        
-        
+        <div class="mt-6 border-t pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <p class="text-sm text-gray-600">
+                    Statut de signature :
+                    <span @class([
+                        'font-semibold',
+                        'text-gray-500' => $receipt->signature_status === 'non_envoye',
+                        'text-amber-600' => $receipt->signature_status === 'en_attente',
+                        'text-green-600' => $receipt->signature_status === 'signe',
+                        'text-red-600' => $receipt->signature_status === 'refuse',
+                    ])>
+                        {{ str_replace('_', ' ', $receipt->signature_status) }}
+                    </span>
+                </p>
+                @if($receipt->signature_status === 'signe' && $receipt->signed_pdf_sha256)
+                    <p class="text-xs text-gray-400 break-all mt-1">
+                        Empreinte SHA-256 du PDF signé (preuve d'intégrité) : {{ $receipt->signed_pdf_sha256 }}
+                    </p>
+                @endif
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                @if(in_array(auth()->user()->role, ['admin', 'gestionnaire']) && $receipt->signature_status === 'non_envoye')
+                    <form action="{{ route('receipts.signature.send', $receipt->id) }}" method="POST">
+                        @csrf
+                        <button class="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Envoyer pour signature
+                        </button>
+                    </form>
+                @endif
+
+                <a href="{{ route('receipts.pdf', $receipt->id) }}"
+                   class="inline-block text-center w-full sm:w-auto bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+                    Télécharger le reçu {{ $receipt->signature_status === 'signe' ? '(signé)' : '' }}
+                </a>
+            </div>
+        </div>
+
     </div>
 
 </div>

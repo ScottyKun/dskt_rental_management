@@ -15,6 +15,14 @@ class Contrat extends Model
         'status',
         'tenant_id',
         'appartement_id',
+        'documenso_envelope_id',
+        'signature_status',
+        'signed_pdf_path',
+        'signed_pdf_sha256',
+        'sent_for_signature_at',
+        'document_status',
+        'document_requested_at',
+        'document_requested_by',
     ];
 
     public $timestamps = true;
@@ -24,6 +32,8 @@ class Contrat extends Model
         'end_date' => 'date',
         'rent_amount' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
+        'sent_for_signature_at' => 'datetime',
+        'document_requested_at' => 'datetime',
     ];
 
     //relations
@@ -35,5 +45,21 @@ class Contrat extends Model
     public function appartement()
     {
         return $this->belongsTo(Appartement::class, 'appartement_id');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(ContratDocument::class);
+    }
+
+    // Le document (CNI) le plus recent soumis par le locataire
+    public function latestDocument()
+    {
+        return $this->hasOne(ContratDocument::class)->latestOfMany();
+    }
+
+    public function documentRequestedBy()
+    {
+        return $this->belongsTo(User::class, 'document_requested_by');
     }
 }

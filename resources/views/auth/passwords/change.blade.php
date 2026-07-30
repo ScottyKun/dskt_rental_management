@@ -3,11 +3,11 @@
 @section('title', 'Changer le mot de passe')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-tr from-gray-100 to-blue-100">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-tr from-gray-100 to-blue-100 px-4">
     <form method="POST" action="{{ route('password.update') }}" 
-          class="bg-white shadow-lg p-8 rounded-2xl w-full max-w-md space-y-6">
+          class="bg-white shadow-lg p-6 sm:p-8 rounded-2xl w-full max-w-md space-y-6">
         @csrf
-        <h2 class="text-2xl font-bold text-center text-gray-800">
+        <h2 class="text-xl sm:text-2xl font-bold text-center text-gray-800">
             <i class="fa-solid fa-lock text-blue-500 mr-2"></i>Changer le mot de passe
         </h2>
 

@@ -12,20 +12,25 @@
 @livewireStyles
 @livewireScripts
 
-<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col">
+<body x-data="{ sidebarOpen: false }" class="bg-gray-100 text-gray-900 h-screen flex flex-col overflow-hidden">
 
     <!-- HEADER -->
-    <header class="bg-white shadow-sm px-6 py-2 flex justify-between items-center sticky top-0 z-40">
-        <!-- Logo -->
-        <div class="flex items-center space-x-2">
-            <i><img src="{{ asset('favicon.ico') }}" alt="" class="w-9 h-9 mr-3"></i>
-            <span class="text-lg font-semibold text-gray-800">DSKT Rental</span>
+    <header class="bg-white shadow-sm px-4 sm:px-6 py-2 flex justify-between items-center sticky top-0 z-40">
+        <!-- Logo + bouton menu mobile -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <button @click="sidebarOpen = !sidebarOpen"
+                    class="md:hidden text-gray-600 hover:text-gray-900 mr-1 text-xl focus:outline-none"
+                    aria-label="Ouvrir le menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <i><img src="{{ asset('favicon.ico') }}" alt="" class="w-8 h-8 sm:w-9 sm:h-9 mr-1 sm:mr-3"></i>
+            <span class="text-base sm:text-lg font-semibold text-gray-800">DSKT Rental</span>
         </div>
 
         <!-- Zone droite -->
-        <div class="flex items-center space-x-5">
+        <div class="flex items-center space-x-3 sm:space-x-5">
             <!-- Avatar profil -->
-            <a href="{{ route('users.show', Auth::user()->id) }}" class="text-blue-500 hover:text-blue-700 transition text-2xl">
+            <a href="{{ route('users.show', Auth::user()->id) }}" class="text-blue-500 hover:text-blue-700 transition text-xl sm:text-2xl">
                 <i class="fa-solid fa-circle-user"></i>
             </a>
 
@@ -51,7 +56,7 @@
         <div x-data="{ show: true }" 
              x-show="show" 
              x-init="setTimeout(() => show = false, 3000)"
-             class="fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
+             class="fixed top-16 sm:top-5 left-4 right-4 sm:left-auto sm:right-5 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
             <i class="fa-solid fa-check-circle mr-2"></i>{{ session('success') }}
         </div>
     @endif
@@ -60,7 +65,7 @@
         <div x-data="{ show: true }"
              x-show="show"
              x-init="setTimeout(() => show = false, 3000)"
-             class="fixed top-5 right-5 bg-red-600 text-white px-4 py-2 rounded shadow-md z-50">
+             class="fixed top-16 sm:top-5 left-4 right-4 sm:left-auto sm:right-5 bg-red-600 text-white px-4 py-2 rounded shadow-md z-50">
             <i class="fa-solid fa-triangle-exclamation mr-2"></i>
             {{ $errors->first() }}
         </div>

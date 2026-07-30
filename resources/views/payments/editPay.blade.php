@@ -3,13 +3,13 @@
 @section('title', 'Modifier Paiement')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
     <form action="{{ route('payments.update', $payment->id) }}" method="POST"
-          class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
+          class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
         @method('PUT')
 
-        <h2 class="text-3xl font-bold text-center text-gray-800">
+        <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">
             <i class="fa-solid fa-money-bill-wave text-blue-500 mr-2"></i>Modifier Paiement
         </h2>
 
