@@ -1,7 +1,7 @@
-@extends('layouts.appLimited')
+@extends('layouts.dashboard')
 
-@section('content')
-<div class="max-w-lg mx-4 sm:mx-auto my-8 bg-white p-6 rounded-xl shadow">
+@section('dashboard-content')
+<div class="max-w-lg mx-auto my-6 bg-white p-6 rounded-xl shadow">
     <h2 class="text-2xl font-bold mb-4">Renouveler le contrat</h2>
 
     <form method="POST" action="{{ route('contrats.renew', $contrat->id) }}">

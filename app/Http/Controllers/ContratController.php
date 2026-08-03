@@ -17,7 +17,9 @@ class ContratController extends Controller
     //index
     public function index(){
         $contrats=$this->contratService->all();
-        return view('contrats.index', compact('contrats'));
+        $kpis = $this->contratService->counts();
+
+        return view('contrats.index', compact('contrats', 'kpis'));
     }
 
     //create

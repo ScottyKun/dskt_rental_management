@@ -15,12 +15,13 @@ use App\Http\Controllers\ContratDocumentController;
 use App\Http\Controllers\ContratSignatureController;
 use App\Http\Controllers\ReceiptSignatureController;
 use App\Http\Controllers\DocumensoWebhookController;
+use App\Http\Controllers\DashboardController;
 
 Route::get("/", fn() => redirect("login"));
 
 // Authentication Routes
 Route::get("/register", [AuthController::class, "showRegistrationForm"])->name("register");
-Route::post("/register", [AuthController::class, "register"]);
+Route::post("/register", [AuthController::class, "register"])->middleware('throttle:register');
 Route::get("/login", [AuthController::class, "showLoginForm"])->name("login");
 Route::post("/login", [AuthController::class, "login"])->middleware('throttle:6,1');
 
@@ -38,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
 // puisque ces routes ne passent pas par le middleware 'mfa').
 Route::middleware(['auth', 'check.validated'])->group(function () {
     Route::get('/mfa/challenge', [MfaController::class, 'showChallenge'])->name('mfa.challenge');
-    Route::post('/mfa/verify', [MfaController::class, 'verify'])->name('mfa.verify');
+    Route::post('/mfa/verify', [MfaController::class, 'verify'])->name('mfa.verify')->middleware('throttle:10,1');
     Route::post('/mfa/resend', [MfaController::class, 'resend'])->name('mfa.resend')->middleware('throttle:3,1');
 });
 
@@ -49,7 +50,7 @@ Route::middleware(['auth', 'check.validated'])->group(function () {
 // - must.change.password : force le changement de mdp temporaire avant tout acces
 Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->group(function () {
 
-    Route::get("/dashboard", [AuthController::class, "dashboard"])->name("dashboard");
+    Route::get("/dashboard", [DashboardController::class, "index"])->name("dashboard");
 
     // Password Change Routes
     Route::get('/password/change', [PasswordController::class, 'showChangeForm'])->name('password.change');
@@ -131,6 +132,11 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
     });
     // contrats.index est deja scope par role dans ContratService::all() (un locataire ne recoit que son propre contrat)
     Route::get('/contrats', [ContratController::class, 'index'])->name('contrats.index');
+
+    // Espace CNI (liste par locataire/contrat) : chemin litteral, doit rester AVANT /contrats/{id}
+    Route::get('/contrats/documents', [ContratDocumentController::class, 'index'])
+        ->name('contrats.documents')->middleware('role:admin,gestionnaire');
+
     Route::get('/contrats/{id}', [ContratController::class, 'consult'])->name('contrats.consult');
 
     // Piece jointe (CNI) : demande/validation reservees a admin+gestionnaire, upload reserve au locataire proprietaire
@@ -151,13 +157,10 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
     Route::get('/tenant/logement', [AppartementController::class, 'locataire'])->name('tenant.logement');
 
     // Payment et receipt routes : creation/edition/suppression reservees a
-    // admin/gestionnaire, la consultation (index/show) reste ouverte et est
-    // scopee par role dans le controleur (un locataire ne voit que ses paiements).
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('/receipts', [PaymentController::class, 'indexReceipts'])->name('receipts.index');
-    Route::get('/payments/{id}', [PaymentController::class, 'showPayment'])->name('payments.show');
-    Route::get('/payments/receipt/{id}', [PaymentController::class, 'showReceipt'])->name('receipts.show');
-
+    Route::post('/payments/send', [PaymentController::class, 'sendPaymentRequest'])->name('payments.sendRequest');
+    
     // Signature electronique du recu (Documenso) : reservee a admin/gestionnaire (le locataire ne signe pas)
     Route::middleware('role:admin,gestionnaire')->group(function () {
         Route::post('/receipts/{receipt}/signature/send', [ReceiptSignatureController::class, 'send'])->name('receipts.signature.send');
@@ -171,7 +174,6 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
         Route::put('/payments/{id}', [PaymentController::class, 'updatePayment'])->name('payments.update');
         Route::delete('/payments/{id}', [PaymentController::class, 'destroyPayment'])->name('payments.destroy');
         Route::get('/payments/search', [PaymentController::class, 'searchPayment'])->name('payments.search');
-        Route::post('/payments/send', [PaymentController::class, 'sendPaymentRequest'])->name('payments.sendRequest');
 
         Route::get('/receipts/periods/{id}', [PaymentController::class, 'formGenerateReceipt'])->name('receipts.periods');
         Route::post('/receipts/generate/{id}', [PaymentController::class, 'generateReceipt'])->name('receipts.generate');
@@ -180,4 +182,8 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
         Route::delete('/receipts/{id}', [PaymentController::class, 'destroyReceipt'])->name('receipts.destroy');
         Route::get('/receipts/search', [PaymentController::class, 'searchReceipts'])->name('receipts.search');
     });
+
+    Route::get('/payments/{id}', [PaymentController::class, 'showPayment'])->name('payments.show');
+    Route::get('/payments/receipt/{id}', [PaymentController::class, 'showReceipt'])->name('receipts.show');
+
 });

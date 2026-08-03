@@ -45,9 +45,9 @@ class PaymentController extends Controller
         $managers=$this->userService->managers();
 
         if($user->role=='gestionnaire'){
-            $tenants=$this->managerService->allLocatairesByManager($user->id);
+            $tenants=$this->managerService->locatairesAvecContratActifByManager($user->id);
         }else{
-            $tenants=$this->userService->getLocataires();
+            $tenants=$this->userService->getLocatairesAvecContratActif();
         }
       
         $paymentMethods = $this->paymentService->getPaymentMethods();
@@ -63,6 +63,7 @@ class PaymentController extends Controller
             'payment_method_id' => 'nullable',
             'create_payment_method' => 'nullable|in:yes,no',
             'amount' => 'required|numeric|min:0',
+            'motif' => 'required|in:loyer,caution,reparation,autre',
         ]);
 
         $payment = $this->paymentService->createCashPayment($data);
@@ -221,7 +222,7 @@ class PaymentController extends Controller
         return view('payments.index', compact('payments'));
     }
     //search receipt
-    public function searchReceipt(Request $request)
+    public function searchReceipts(Request $request)
     {
         $term = $request->query('q');
         $receipts = $this->paymentService->searchReceipts($term);

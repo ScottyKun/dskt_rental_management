@@ -20,6 +20,11 @@ class ManagerService{
         return $this->managerRepository->getLocatairesByManager($managerId);
     }
 
+    public function locatairesAvecContratActifByManager(int $managerId)
+    {
+        return $this->managerRepository->getLocatairesAvecContratActifByManager($managerId);
+    }
+
     //all for approval
     public function pendingLocataires()
     {

@@ -177,6 +177,21 @@ class ContratService
         }
     }
 
+    /**
+     * KPI de comptage (total, actifs, resilies, expires), scopes par role,
+     * calcules directement en base (independant de la pagination de all()).
+     */
+    public function counts(): array
+    {
+        $user = Auth::user();
+
+        return match ($user->role) {
+            'gestionnaire' => $this->contratRepository->countsByManager($user->id),
+            'locataire' => $this->contratRepository->countsByTenant($user->id),
+            default => $this->contratRepository->countsAll(),
+        };
+    }
+
     //appartements sans contrat actifs
     public function getAvailableAppartements()
     {

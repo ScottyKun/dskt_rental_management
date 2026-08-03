@@ -56,6 +56,7 @@ class ReceiptSignatureController extends Controller
             ->with('success', 'Reçu envoyé pour signature.');
     }
 
+    // Telechargement du PDF signe uniquement (bloque tant que la signature n'est pas complete)
     public function download(Receipt $receipt)
     {
         $user = Auth::user();
@@ -63,15 +64,10 @@ class ReceiptSignatureController extends Controller
             abort(403);
         }
 
-        if ($receipt->signature_status === 'signe' && $receipt->signed_pdf_path) {
-            return Storage::disk('minio')->download($receipt->signed_pdf_path, "recu-{$receipt->receipt_number}-signe.pdf");
+        if ($receipt->signature_status !== 'signe' || !$receipt->signed_pdf_path) {
+            abort(403, "Le reçu n'a pas encore été signé.");
         }
 
-        $pdf = $this->pdfService->receiptPdf($receipt);
-
-        return response($pdf, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => "attachment; filename=recu-{$receipt->receipt_number}.pdf",
-        ]);
+        return Storage::disk('minio')->download($receipt->signed_pdf_path, "recu-{$receipt->receipt_number}-signe.pdf");
     }
 }

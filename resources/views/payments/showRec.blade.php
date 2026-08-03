@@ -84,10 +84,17 @@
                     </form>
                 @endif
 
-                <a href="{{ route('receipts.pdf', $receipt->id) }}"
-                   class="inline-block text-center w-full sm:w-auto bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800">
-                    Télécharger le reçu {{ $receipt->signature_status === 'signe' ? '(signé)' : '' }}
-                </a>
+                @if($receipt->signature_status === 'signe')
+                    <a href="{{ route('receipts.pdf', $receipt->id) }}"
+                       class="inline-block text-center w-full sm:w-auto bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+                        Télécharger le reçu (signé)
+                    </a>
+                @else
+                    <button type="button" disabled
+                            class="inline-block text-center w-full sm:w-auto bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed">
+                        Télécharger (disponible une fois signé)
+                    </button>
+                @endif
             </div>
         </div>
 

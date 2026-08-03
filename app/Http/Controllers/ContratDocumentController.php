@@ -14,6 +14,22 @@ class ContratDocumentController extends Controller
     {
     }
 
+    // Espace CNI : liste de toutes les pieces jointes par locataire/contrat (admin/gestionnaire)
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'gestionnaire'], true)) {
+            abort(403, "Action réservée à un gestionnaire ou un administrateur.");
+        }
+
+        $documents = $this->documentService->list(
+            $request->query('q'),
+            $request->query('status')
+        );
+
+        return view('contrats.documents', compact('documents'));
+    }
+
     // Gestionnaire/admin demande une piece au locataire
     public function request(Contrat $contrat)
     {
@@ -34,7 +50,15 @@ class ContratDocumentController extends Controller
         }
 
         $request->validate([
-            'document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            // 'mimes' verifie l'extension, 'mimetypes' verifie le contenu reel du fichier (finfo) :
+            // les deux sont necessaires, un fichier .pdf renomme depuis un .php echouerait sur mimetypes.
+            'document' => [
+                'required',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'mimetypes:application/pdf,image/jpeg,image/png',
+                'max:5120',
+            ],
         ]);
 
         $this->documentService->submit($contrat, $request->file('document'));

@@ -1,9 +1,9 @@
-@extends('layouts.appLimited')
+@extends('layouts.dashboard')
 
 @section('title', 'Modifier un Contrat')
 
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
+@section('dashboard-content')
+<div class="max-w-xl mx-auto my-2 sm:my-6">
     <form action="{{ route('contrats.update', $contrat->id) }}" method="POST"
           class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
@@ -89,14 +89,30 @@
     </form>
 </div>
 
-<script>
-document.getElementById('appartementSelect').addEventListener('change', function() {
-    const selectedOption = this.selectedOptions[0];
-    const tenantId = selectedOption.dataset.tenant;
-    const rent = selectedOption.dataset.rent;
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
-    document.getElementById('tenantSelect').value = tenantId || "";
-    document.getElementById('rentInput').value = rent || "";
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const appartementSelect = new Choices('#appartementSelect', {
+        searchEnabled: true, placeholder: true, placeholderValue: 'Rechercher un appartement',
+        shouldSort: false, itemSelectText: ''
+    });
+    const tenantSelect = new Choices('#tenantSelect', {
+        searchEnabled: true, placeholder: true, placeholderValue: 'Rechercher un locataire',
+        shouldSort: false, itemSelectText: ''
+    });
+
+    document.getElementById('appartementSelect').addEventListener('change', function() {
+        const selectedOption = this.selectedOptions[0];
+        const tenantId = selectedOption ? selectedOption.dataset.tenant : '';
+        const rent = selectedOption ? selectedOption.dataset.rent : '';
+
+        if (tenantId) {
+            tenantSelect.setChoiceByValue(tenantId);
+        }
+        document.getElementById('rentInput').value = rent || "";
+    });
 });
 </script>
 @endsection

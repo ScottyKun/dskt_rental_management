@@ -3,6 +3,14 @@
 @section('dashboard-content')
 <div class="space-y-6">
 
+    {{-- KPI --}}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <x-kpi-card label="Total contrats" :value="$kpis['total']" />
+        <x-kpi-card label="Actifs" :value="$kpis['actifs']" color="green" />
+        <x-kpi-card label="Résiliés" :value="$kpis['resilies']" color="red" />
+        <x-kpi-card label="Expirés (non résiliés)" :value="$kpis['expires']" color="amber" />
+    </div>
+
     {{-- Actions principales --}}
     <div class="flex flex-col md:flex-row md:justify-between items-start md:items-center mt-4 space-y-3 md:space-y-0">
         

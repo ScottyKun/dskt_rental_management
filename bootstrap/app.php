@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'webhooks/documenso',
         ]);
+
+        $middleware->web(append: [
+            \Illuminate\Routing\Middleware\ThrottleRequests::class . ':global',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -23,26 +23,18 @@ class Notifications extends Component
         return view('livewire.notifications');
     }
 
-    //vers la page de consult
+    //vers la page de consult (redirection serveur directe, geree nativement par Livewire 3)
     public function viewMessage($id)
     {
-        // Ferme le dropdown côté Alpine
-        $this->dispatch('messageRedirecting');
-
-        // Redirige le navigateur via JS
-        $this->dispatchBrowserEvent('redirectTo', [
-            'url' => route('messages.consult', $id),
-        ]);
+        return redirect()->route('messages.consult', $id);
     }
-
-
 
     //marque comme lu
     public function markAsRead($id)
     {
         $this->messageService->readMessage($id);
         $this->loadMessages(); // rafraîchir la liste
-        $this->emit('messageRead'); // event si besoin côté JS
+        $this->dispatch('messageRead'); // event Livewire 3 (remplace emit(), supprime en v3)
     }
 
     //charger les messages non lus

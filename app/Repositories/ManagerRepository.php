@@ -13,6 +13,15 @@ class ManagerRepository{
                    ->orderBy('created_at', 'desc')->paginate($page);
     }
 
+    // Uniquement les locataires du gestionnaire ayant un contrat actif (formulaire paiement)
+    public function getLocatairesAvecContratActifByManager(int $managerId)
+    {
+        return User::where('manager_id', $managerId)
+            ->where('role', 'locataire')
+            ->whereHas('contrats', fn($q) => $q->where('status', 'actif'))
+            ->get();
+    }
+
     //afficher les locataire en attente de validation
     public function getPendingLocatairesByManager(int $page=7)
     {

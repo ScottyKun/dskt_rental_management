@@ -121,4 +121,18 @@ class ImmeubleRepository{
         return $query->count();
     }
 
+    // Capacite totale du parc (somme des appartements declares par immeuble)
+    public function sumCapacite(): int
+    {
+        $user = Auth::user();
+
+        $query = Immeuble::query();
+
+        if ($user->role === 'gestionnaire') {
+            $query->where('manager_id', $user->id);
+        }
+
+        return (int) $query->sum('nb_apartments');
+    }
+
 }

@@ -82,12 +82,29 @@ class PaymentService
                 'manager_id' => intval($data['manager_id']),
                 'payment_method_id' => $cashPaymentMethod->id,
                 'amount' => floatval($data['amount']),
+                'motif' => e($data['motif'] ?? 'loyer'),
                 'currency' => e($data['currency'] ?? 'CFA'),
                 'status' => 'CONFIRMED',
                 'paid_at' => now(),
             ]);
 
             DB::commit();
+
+            $this->messageService->notifyTenant(
+                (int) $data['tenant_id'],
+                (int) $data['manager_id'],
+                'Paiement enregistré',
+                sprintf(
+                    "Un paiement de %s CFA (%s) a été enregistré sur votre compte.",
+                    number_format((float) $data['amount'], 0, ',', ' '),
+                    match ($data['motif'] ?? 'loyer') {
+                        'loyer' => 'loyer',
+                        'caution' => 'caution',
+                        'reparation' => 'réparation',
+                        default => 'autre',
+                    }
+                )
+            );
 
             return [
                 'success' => true,

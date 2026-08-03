@@ -125,6 +125,7 @@ class ImmeubleService{
             'total' => $this->immeubleRepository->countAll(),
             'actifs' => $this->immeubleRepository->countActifs(),
             'maintenance' => $this->immeubleRepository->countEnMaintenance(),
+            'capacite' => $this->immeubleRepository->sumCapacite(),
         ];
     }
 }

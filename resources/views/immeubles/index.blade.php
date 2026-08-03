@@ -3,7 +3,7 @@
 @section('dashboard-content')
 <div class="space-y-6">
     {{-- Statistiques --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded-xl shadow hover:shadow-md transition flex items-center space-x-4">
             <i class="fa-solid fa-building text-3xl text-blue-500"></i>
             <div>
@@ -25,6 +25,14 @@
             <div>
                 <h3 class="text-xl font-semibold">{{ $stats['maintenance'] }}</h3>
                 <p class="text-gray-600">En maintenance</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow hover:shadow-md transition flex items-center space-x-4">
+            <i class="fa-solid fa-door-open text-3xl text-indigo-500"></i>
+            <div>
+                <h3 class="text-xl font-semibold">{{ $stats['capacite'] }}</h3>
+                <p class="text-gray-600">Capacité du parc</p>
             </div>
         </div>
     </div>
@@ -54,7 +62,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 1)">Adresse</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 2)">Ville</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 3)">Gestionnaire</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 4)">Disponnible</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 4)">Capacité</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 5)">Occupés</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 6)">Créé le</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" onclick="sortTable(this, 7)">Statuts</th>
@@ -71,7 +79,7 @@
                         {{ $immeuble->manager ? $immeuble->manager->name . ' ' . $immeuble->manager->surname : '—' }}
 
                     </td>
-                    <td class="px-6 py-4">{{ $immeuble->nb_available }}</td>
+                    <td class="px-6 py-4">{{ $immeuble->nb_apartments }}</td>
                     <td class="px-6 py-4">{{ $immeuble->nb_occupied }}</td>
                     <td class="px-6 py-4">{{ $immeuble->created_at->format('d/m/Y') }}</td>
                     <td class="px-6 py-4">{{ $immeuble->status }}</td>

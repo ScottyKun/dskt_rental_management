@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\AppartementService;
+use App\Services\DashboardService;
 
 class AppartementController extends Controller
 {
@@ -129,9 +130,11 @@ class AppartementController extends Controller
     }
 
     //appartement du locataire
-    public function locataire(){
+    public function locataire(DashboardService $dashboardService){
         $appartement=$this->appartementService->getLocataireAppartement();
-        return view('users.locataire.consultAppart', compact('appartement'));
+        $mini = $dashboardService->tenantOverview(auth()->id());
+
+        return view('users.locataire.consultAppart', compact('appartement', 'mini'));
     }
 
 }

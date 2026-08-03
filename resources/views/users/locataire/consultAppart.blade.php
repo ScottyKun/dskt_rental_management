@@ -1,7 +1,31 @@
 @extends('layouts.dashboard')
 
 @section('dashboard-content')
-<div class="max-w-4xl mx-auto mt-8">
+<div class="max-w-4xl mx-auto mt-8 space-y-4">
+
+    {{-- Mini-dashboard personnel --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        <x-kpi-card
+            label="Loyer"
+            :value="$mini['loyer_a_jour'] === null ? '—' : ($mini['loyer_a_jour'] ? 'À jour' : 'En retard')"
+            :color="$mini['loyer_a_jour'] === null ? 'gray' : ($mini['loyer_a_jour'] ? 'green' : 'red')" />
+        <x-kpi-card
+            label="Contrat"
+            :value="$mini['jours_restants_contrat'] !== null ? max($mini['jours_restants_contrat'], 0) . ' j restants' : '—'"
+            :color="$mini['jours_restants_contrat'] !== null && $mini['jours_restants_contrat'] <= 30 ? 'amber' : 'blue'" />
+        <x-kpi-card
+            label="Jour de paiement"
+            :value="$mini['jour_paiement'] ? 'le ' . $mini['jour_paiement'] . ' du mois' : '—'" />
+        <x-kpi-card
+            label="Pièce d'identité"
+            :value="match($mini['document_status']) {
+                'valide' => 'Validée',
+                'soumis' => 'En vérification',
+                'demande' => 'À transmettre',
+                default => '—',
+            }"
+            :color="$mini['document_status'] === 'valide' ? 'green' : 'amber'" />
+    </div>
 
     @if($appartement)
         <div class="bg-white shadow-lg rounded-xl p-6">
@@ -56,14 +80,17 @@
                 </a>
 
                 <!-- Payer mon loyer -->
-                <a href="{{ route('payments.create') }}"
-                class="flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-                    </svg>
-                    Payer mon loyer
-                </a>
+                <form action="{{ route('payments.sendRequest') }}" method="POST">
+                    @csrf
+                    <button type="submit"
+                    class="w-full flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3M12 2a10 10 0 100 20 10 10 0 000-20z"/>
+                        </svg>
+                        Payer mon loyer
+                    </button>
+                </form>
 
                 <!-- Demander un préavis de départ -->
                 <a href="{{ route('messages.request.create') }}"

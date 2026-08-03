@@ -88,4 +88,23 @@ class MessageService{
             $receiver->notify(new NewMessageNotification($message));
         }
     }
+
+    //notifie un locataire precis (in-app + mail), ex: paiement enregistre par le gestionnaire
+    public function notifyTenant(int $tenantId, int $senderId, string $title, string $content): void
+    {
+        $tenant = $this->userRepository->findById($tenantId);
+        if (!$tenant) {
+            return;
+        }
+
+        $message = $this->messageRepository->create([
+            'sender_id' => $senderId,
+            'receiver_id' => $tenant->id,
+            'title' => e($title),
+            'content' => e($content),
+            'is_read' => false,
+        ]);
+
+        $tenant->notify(new NewMessageNotification($message));
+    }
 }    

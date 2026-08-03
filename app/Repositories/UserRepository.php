@@ -151,4 +151,13 @@ class UserRepository
         return User::where('role', 'locataire')->get();
     }
 
+    // Uniquement les locataires ayant au moins un contrat actif (formulaire de paiement :
+    // on ne doit pouvoir enregistrer un paiement que pour un locataire sous contrat).
+    public function getLocatairesAvecContratActif()
+    {
+        return User::where('role', 'locataire')
+            ->whereHas('contrats', fn($q) => $q->where('status', 'actif'))
+            ->get();
+    }
+
 }

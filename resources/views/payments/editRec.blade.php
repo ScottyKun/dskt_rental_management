@@ -1,9 +1,9 @@
-@extends('layouts.appLimited')
+@extends('layouts.dashboard')
 
 @section('title', 'Modifier Reçu')
 
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
+@section('dashboard-content')
+<div class="max-w-xl mx-auto my-2 sm:my-6">
     <form action="{{ route('receipts.update', $receipt->id) }}" method="POST"
           class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf

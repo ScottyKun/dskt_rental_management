@@ -3,16 +3,7 @@
 @section('dashboard-content')
 <div class="space-y-6">
     {{-- Statistiques --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-
-        {{-- Total Appartements --}}
-        <div class="bg-white p-6 rounded-xl shadow hover:shadow-md transition flex items-center space-x-4">
-            <i class="fa-solid fa-house-chimney text-3xl text-blue-500"></i>
-            <div>
-                <h3 class="text-xl font-semibold">{{ $stats['total'] }}</h3>
-                <p class="text-gray-600">Capacité total</p>
-            </div>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
         {{-- Appartements Disponibles --}}
         <div class="bg-white p-6 rounded-xl shadow hover:shadow-md transition flex items-center space-x-4">

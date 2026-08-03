@@ -62,7 +62,7 @@ class ContratSignatureController extends Controller
             ->with('success', 'Contrat envoyé pour signature au bailleur et au locataire.');
     }
 
-    // Telechargement du PDF : le signe si disponible, sinon une version generee a la volee
+    // Telechargement du PDF signe uniquement (bloque tant que la signature n'est pas complete)
     public function download(Contrat $contrat)
     {
         $user = Auth::user();
@@ -70,15 +70,10 @@ class ContratSignatureController extends Controller
             abort(403);
         }
 
-        if ($contrat->signature_status === 'signe' && $contrat->signed_pdf_path) {
-            return Storage::disk('minio')->download($contrat->signed_pdf_path, "contrat-{$contrat->id}-signe.pdf");
+        if ($contrat->signature_status !== 'signe' || !$contrat->signed_pdf_path) {
+            abort(403, "Le contrat n'a pas encore été signé par les deux parties.");
         }
 
-        $pdf = $this->pdfService->contratPdf($contrat);
-
-        return response($pdf, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => "attachment; filename=contrat-{$contrat->id}.pdf",
-        ]);
+        return Storage::disk('minio')->download($contrat->signed_pdf_path, "contrat-{$contrat->id}-signe.pdf");
     }
 }

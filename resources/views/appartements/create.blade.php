@@ -1,9 +1,9 @@
-@extends('layouts.appLimited')
+@extends('layouts.dashboard')
 
 @section('title', 'Ajouter un Appartement')
 
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
+@section('dashboard-content')
+<div class="max-w-xl mx-auto my-2 sm:my-6">
     <form action="{{ route('appartements.store') }}" method="POST"
           class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
@@ -70,7 +70,7 @@
         {{-- Locataire --}}
         <div>
             <label class="block mb-1 font-semibold">Locataire</label>
-            <select name="locataire_id" class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+            <select id="locataireSelect" name="locataire_id" class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="">— Non attribué —</option>
                 @foreach($locataires as $locataire)
                     <option value="{{ $locataire->id }}">{{ $locataire->name }} {{ $locataire->surname }}</option>
@@ -85,4 +85,15 @@
         </button>
     </form>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    new Choices('#locataireSelect', {
+        searchEnabled: true, placeholder: true, placeholderValue: 'Rechercher un locataire',
+        shouldSort: false, itemSelectText: ''
+    });
+});
+</script>
 @endsection

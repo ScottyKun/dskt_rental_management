@@ -1,9 +1,9 @@
-@extends('layouts.appLimited')
+@extends('layouts.dashboard')
 
 @section('title', 'Ajouter un Paiement')
 
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
+@section('dashboard-content')
+<div class="max-w-xl mx-auto my-2 sm:my-6">
     <form action="{{ route('payments.store') }}" method="POST"
           class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
@@ -73,6 +73,17 @@
                         {{ $method->label }}
                     </option>
                 @endforeach
+            </select>
+        </div>
+
+        {{-- Motif --}}
+        <div>
+            <label class="block mb-1 font-semibold">Motif</label>
+            <select name="motif" required class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="loyer" {{ old('motif', 'loyer') == 'loyer' ? 'selected' : '' }}>Loyer</option>
+                <option value="caution" {{ old('motif') == 'caution' ? 'selected' : '' }}>Caution</option>
+                <option value="reparation" {{ old('motif') == 'reparation' ? 'selected' : '' }}>Réparation</option>
+                <option value="autre" {{ old('motif') == 'autre' ? 'selected' : '' }}>Autre</option>
             </select>
         </div>
 

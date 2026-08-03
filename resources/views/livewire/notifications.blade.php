@@ -43,19 +43,3 @@
         @endforelse
     </div>
 </div>
-
-<!-- Script Livewire x Alpine -->
-<script>
-    document.addEventListener('livewire:init', () => {
-        // Redirection navigateur
-        window.addEventListener('redirectTo', event => {
-            window.location.href = event.detail.url;
-        });
-
-        // Fermer le menu avant redirection
-        Livewire.on('messageRedirecting', () => {
-            const dropdown = document.querySelector('[x-data]');
-            if (dropdown && dropdown.__x) dropdown.__x.$data.open = false;
-        });
-    });
-</script>

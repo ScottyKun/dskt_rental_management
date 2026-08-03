@@ -1,78 +1,130 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'DSKT Rental')</title>
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-</head>
-@livewireStyles
-@livewireScripts
+@extends('layouts.dashboard')
 
-<body x-data="{ sidebarOpen: false }" class="bg-gray-100 text-gray-900 h-screen flex flex-col overflow-hidden">
+@section('dashboard-content')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-    <!-- HEADER -->
-    <header class="bg-white shadow-sm px-4 sm:px-6 py-2 flex justify-between items-center sticky top-0 z-40">
-        <!-- Logo + bouton menu mobile -->
-        <div class="flex items-center space-x-2 sm:space-x-3">
-            <button @click="sidebarOpen = !sidebarOpen"
-                    class="md:hidden text-gray-600 hover:text-gray-900 mr-1 text-xl focus:outline-none"
-                    aria-label="Ouvrir le menu">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <i><img src="{{ asset('favicon.ico') }}" alt="" class="w-8 h-8 sm:w-9 sm:h-9 mr-1 sm:mr-3"></i>
-            <span class="text-base sm:text-lg font-semibold text-gray-800">DSKT Rental</span>
+<div class="space-y-8">
+
+    <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Bonjour {{ $user->name }} 👋</h1>
+        <p class="text-sm text-gray-500">Vue d'ensemble de votre parc</p>
+    </div>
+
+    {{-- Occupation & contrats --}}
+    <div>
+        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Mon parc</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <x-kpi-card label="Immeubles" :value="$kpis['immeubles']" />
+            <x-kpi-card label="Taux d'occupation" :value="$kpis['taux_occupation'] . '%'" color="blue" />
+            <x-kpi-card label="Occupés" :value="$kpis['appartements_occupes']" />
+            <x-kpi-card label="Disponibles" :value="$kpis['appartements_disponibles']" color="green" />
+            <x-kpi-card label="Locataires actifs" :value="$kpis['locataires_actifs']" />
         </div>
+    </div>
 
-        <!-- Zone droite -->
-        <div class="flex items-center space-x-3 sm:space-x-5">
-            <!-- Avatar profil -->
-            <a href="{{ route('users.show', Auth::user()->id) }}" class="text-blue-500 hover:text-blue-700 transition text-xl sm:text-2xl">
-                <i class="fa-solid fa-circle-user"></i>
+    {{-- Graphiques --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow p-4 lg:col-span-2">
+            <h3 class="text-sm font-semibold text-gray-600 mb-3">Évolution de mes revenus (6 derniers mois)</h3>
+            <canvas id="revenueTrendChart" height="220"></canvas>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-gray-600 mb-3">Occupation de mon parc</h3>
+            <canvas id="occupancyChart" height="220"></canvas>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-gray-600 mb-3">Statut de mes contrats</h3>
+            <canvas id="contractsChart" height="220"></canvas>
+        </div>
+    </div>
+
+    {{-- Finance & suivi --}}
+    <div>
+        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Finance & suivi</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <x-kpi-card label="Revenus du mois" :value="number_format($kpis['revenus_du_mois'], 0, ',', ' ') . ' CFA'" color="blue" />
+            <x-kpi-card label="Montant impayé" :value="number_format($kpis['montant_impaye'], 0, ',', ' ') . ' CFA'" color="red" />
+            <x-kpi-card label="Loyers en retard" :value="$kpis['nb_loyers_en_retard']" color="amber" />
+            <x-kpi-card label="Contrats expirent -30j" :value="$kpis['contrats_expirant_30j']" color="amber" />
+            <x-kpi-card label="CNI en attente" :value="$kpis['cni_en_attente']" color="amber" />
+        </div>
+    </div>
+
+    {{-- Actions rapides --}}
+    <div>
+        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Actions rapides</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <a href="{{ route('manager.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-user-plus text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Ajouter un locataire</span>
             </a>
-
-            <!-- Notifications -->
-            <livewire:notifications />
-            <!-- Déconnexion -->
-            <div class="flex items-center space-x-5">
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button 
-                        class="w-8 h-8 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-700 
-                            transition text-white shadow-md">
-                        <i class="fa-solid fa-right-from-bracket text-lg"></i>
-                    </button>
-                </form>
-            </div>
-
+            <a href="{{ route('contrats.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-file-contract text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Créer un contrat</span>
+            </a>
+            <a href="{{ route('payments.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-money-check-dollar text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Enregistrer un paiement</span>
+            </a>
+            <a href="{{ route('appartements.index') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-door-open text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Mes appartements</span>
+            </a>
+            <a href="{{ route('manager.index') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-users text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Mes locataires</span>
+            </a>
+            <a href="{{ route('messages.index') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-envelope text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Messages</span>
+            </a>
         </div>
-    </header>
+    </div>
 
-    <!-- Notifications dynamiques -->
-    @if(session('success'))
-        <div x-data="{ show: true }" 
-             x-show="show" 
-             x-init="setTimeout(() => show = false, 3000)"
-             class="fixed top-16 sm:top-5 left-4 right-4 sm:left-auto sm:right-5 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
-            <i class="fa-solid fa-check-circle mr-2"></i>{{ session('success') }}
-        </div>
-    @endif
+</div>
 
-    @if ($errors->any())
-        <div x-data="{ show: true }"
-             x-show="show"
-             x-init="setTimeout(() => show = false, 3000)"
-             class="fixed top-16 sm:top-5 left-4 right-4 sm:left-auto sm:right-5 bg-red-600 text-white px-4 py-2 rounded shadow-md z-50">
-            <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-            {{ $errors->first() }}
-        </div>
-    @endif
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const revenueTrend = @json($revenueTrend);
+    const occupancy = @json($occupancyDonut);
+    const contracts = @json($contractsDonut);
 
-    <!-- Contenu principal -->
-    @yield('content')
+    new Chart(document.getElementById('revenueTrendChart'), {
+        type: 'line',
+        data: {
+            labels: revenueTrend.labels,
+            datasets: [{
+                label: 'Revenus (CFA)',
+                data: revenueTrend.data,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                tension: 0.3,
+                fill: true,
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+    });
 
-</body>
-</html>
+    new Chart(document.getElementById('occupancyChart'), {
+        type: 'doughnut',
+        data: {
+            labels: occupancy.labels,
+            datasets: [{ data: occupancy.data, backgroundColor: ['#2563eb', '#22c55e'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: true }
+    });
+
+    new Chart(document.getElementById('contractsChart'), {
+        type: 'doughnut',
+        data: {
+            labels: contracts.labels,
+            datasets: [{ data: contracts.data, backgroundColor: ['#2563eb', '#ef4444'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: true }
+    });
+});
+</script>
+@endsection

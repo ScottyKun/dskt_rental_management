@@ -145,4 +145,9 @@ class UserService{
         return $this->userRepository->getLocataires();
     }
 
+    public function getLocatairesAvecContratActif()
+    {
+        return $this->userRepository->getLocatairesAvecContratActif();
+    }
+
 }

@@ -52,14 +52,6 @@
                         </a>
                     </li>
                 @endforeach
-                <li>
-                    <a href="#" class="flex items-center px-4 py-2 rounded-lg mx-2 
-                        hover:bg-blue-600 hover:text-white transition text-gray-300">
-                        <i class="fa-solid fa-chart-line mr-3 text-lg"></i>
-                        <span class="text-sm font-medium md:hidden">Dashboard</span>
-                            <span class="text-sm font-medium hidden md:inline" x-show="open">Dashboard</span>
-                    </a>
-                </li>
                 <!-- Séparateur -->
                 <hr class="my-3 border-gray-700 opacity-30">
 
@@ -180,9 +172,9 @@
                         <i class="fa-solid fa-money-bill-wave mr-3 text-lg"></i>
                         <span class="text-sm font-medium md:hidden">Paiements</span>
                             <span class="text-sm font-medium hidden md:inline" x-show="open">Paiements</span>
-                </a>
-                <!-- Séparateur -->
-                <hr class="my-3 border-gray-700 opacity-30">
+                  </a>
+                </li>
+                <li>
                 <a href="{{ route('receipts.index') }}" 
                              class="flex items-center px-4 py-2 rounded-lg mx-2 
                                 hover:bg-blue-600 hover:text-white transition 
@@ -192,7 +184,20 @@
                             <span class="text-sm font-medium hidden md:inline" x-show="open">Reçus</span>
                 </a>
                 </li>
-                
+
+                @if(in_array(auth()->user()->role, ['admin', 'gestionnaire']))
+                <hr class="my-3 border-gray-700 opacity-30">
+                <li>
+                <a href="{{ route('contrats.documents') }}" 
+                             class="flex items-center px-4 py-2 rounded-lg mx-2 
+                                hover:bg-blue-600 hover:text-white transition 
+                                {{ request()->routeIs('contrats.documents') ? 'bg-blue-700 text-white' : 'text-gray-300' }}">
+                        <i class="fa-solid fa-id-card mr-3 text-lg"></i>
+                        <span class="text-sm font-medium md:hidden">Pièces d'identité</span>
+                            <span class="text-sm font-medium hidden md:inline" x-show="open">Pièces d'identité</span>
+                </a>
+                </li>
+                @endif
             </ul>
         </nav>
 

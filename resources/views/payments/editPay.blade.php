@@ -1,9 +1,9 @@
-@extends('layouts.appLimited')
+@extends('layouts.dashboard')
 
 @section('title', 'Modifier Paiement')
 
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
+@section('dashboard-content')
+<div class="max-w-xl mx-auto my-2 sm:my-6">
     <form action="{{ route('payments.update', $payment->id) }}" method="POST"
           class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
@@ -76,13 +76,26 @@
     </form>
 </div>
 
-{{-- Auto-sélection du gestionnaire --}}
+{{-- Choices.js pour recherche et filtrage + auto-selection du gestionnaire --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-document.getElementById('tenantSelect').addEventListener('change', function () {
-    const managerId = this.selectedOptions[0].dataset.manager;
-    if (managerId) {
-        document.getElementById('managerSelect').value = managerId;
-    }
+document.addEventListener('DOMContentLoaded', function () {
+    const tenantSelect = new Choices('#tenantSelect', {
+        searchEnabled: true, placeholder: true, placeholderValue: 'Rechercher un locataire',
+        shouldSort: false, itemSelectText: ''
+    });
+    const managerSelect = new Choices('#managerSelect', {
+        searchEnabled: true, placeholder: true, placeholderValue: '— Gestionnaire associé —',
+        shouldSort: false, itemSelectText: ''
+    });
+
+    document.getElementById('tenantSelect').addEventListener('change', function () {
+        const managerId = this.selectedOptions[0] ? this.selectedOptions[0].dataset.manager : '';
+        if (managerId) {
+            managerSelect.setChoiceByValue(managerId);
+        }
+    });
 });
 </script>
 @endsection

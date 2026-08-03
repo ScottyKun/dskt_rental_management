@@ -1,9 +1,9 @@
-@extends('layouts.appLimited')
+@extends('layouts.dashboard')
 
 @section('title', 'Ajouter un Contrat')
 
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-gray-100 px-4 py-8">
+@section('dashboard-content')
+<div class="max-w-xl mx-auto my-2 sm:my-6">
     <form action="{{ route('contrats.store') }}" method="POST"
           class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
         @csrf
@@ -77,18 +77,42 @@
     </form>
 </div>
 
+{{-- Choices.js pour recherche et filtrage --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
 {{-- JS pour remplir automatiquement locataire et loyer --}}
 <script>
-document.getElementById('appartementSelect').addEventListener('change', function() {
-    const selectedOption = this.selectedOptions[0];
-    const tenantId = selectedOption.dataset.tenant;
-    const rent = selectedOption.dataset.rent;
+document.addEventListener('DOMContentLoaded', function () {
+    const appartementSelect = new Choices('#appartementSelect', {
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: 'Rechercher un appartement',
+        shouldSort: false,
+        itemSelectText: ''
+    });
 
-    const tenantSelect = document.getElementById('tenantSelect');
-    tenantSelect.value = tenantId || "";
+    const tenantSelect = new Choices('#tenantSelect', {
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: 'Rechercher un locataire',
+        shouldSort: false,
+        itemSelectText: ''
+    });
 
-    const rentInput = document.getElementById('rentInput');
-    rentInput.value = rent || "";
+    document.getElementById('appartementSelect').addEventListener('change', function () {
+        const selectedOption = this.selectedOptions[0];
+        const tenantId = selectedOption ? selectedOption.dataset.tenant : '';
+        const rent = selectedOption ? selectedOption.dataset.rent : '';
+
+        if (tenantId) {
+            tenantSelect.setChoiceByValue(tenantId);
+        } else {
+            tenantSelect.clearStore();
+        }
+
+        document.getElementById('rentInput').value = rent || '';
+    });
 });
 </script>
 @endsection

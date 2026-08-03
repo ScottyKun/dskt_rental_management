@@ -12,6 +12,35 @@ class ContratRepository
         return Contrat::create($data);
     }
 
+    public function countsAll(): array
+    {
+        return $this->countsFor(Contrat::query());
+    }
+
+    public function countsByManager(int $managerId): array
+    {
+        return $this->countsFor(
+            Contrat::whereHas('appartement.immeuble', fn($q) => $q->where('manager_id', $managerId))
+        );
+    }
+
+    public function countsByTenant(int $tenantId): array
+    {
+        return $this->countsFor(Contrat::where('tenant_id', $tenantId));
+    }
+
+    private function countsFor($query): array
+    {
+        return [
+            'total' => (clone $query)->count(),
+            'actifs' => (clone $query)->where('status', 'actif')->count(),
+            'resilies' => (clone $query)->where('status', 'résilié')->count(),
+            'expires' => (clone $query)->where('status', 'actif')
+                ->where('end_date', '<', now())
+                ->count(),
+        ];
+    }
+
     //modifier un contrat
     public function update(int $id, array $data): bool
     {

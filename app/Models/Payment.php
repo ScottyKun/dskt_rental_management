@@ -12,6 +12,7 @@ class Payment extends Model
         'manager_id',
         'payment_method_id',
         'amount',
+        'motif',
         'currency',
         'status',
         'external_reference',
