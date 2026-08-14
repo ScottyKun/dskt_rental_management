@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Contrat extends Model
 {
     protected $fillable = [
+        'numero',
+        'nature_bail',
         'start_date',
         'end_date',
         'rent_amount',
         'rent_payment_day',
         'deposit_amount',
+        'deposit_due_date',
         'status',
         'tenant_id',
         'appartement_id',
@@ -30,6 +33,7 @@ class Contrat extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'deposit_due_date' => 'date',
         'rent_amount' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
         'sent_for_signature_at' => 'datetime',
@@ -45,6 +49,11 @@ class Contrat extends Model
     public function appartement()
     {
         return $this->belongsTo(Appartement::class, 'appartement_id');
+    }
+
+    public function garant()
+    {
+        return $this->hasOne(ContratGarant::class);
     }
 
     public function documents()

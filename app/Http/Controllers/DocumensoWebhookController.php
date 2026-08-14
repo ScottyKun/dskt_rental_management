@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contrat;
 use App\Models\Receipt;
+use App\Events\ContractSignatureUpdated;
 use App\Services\DocumensoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -51,6 +52,13 @@ class DocumensoWebhookController extends Controller
             case 'DOCUMENT_REJECTED':
             case 'document.rejected':
                 $target->update(['signature_status' => 'refuse']);
+                if ($target instanceof Contrat) {
+                    try {
+                        event(new ContractSignatureUpdated($target->id, 'refuse'));
+                    } catch (\Throwable $e) {
+                        Log::warning('Diffusion Reverb (signature refusée) échouée, ignorée : ' . $e->getMessage());
+                    }
+                }
                 break;
 
             default:
@@ -74,6 +82,14 @@ class DocumensoWebhookController extends Controller
                 'signed_pdf_path' => $result['path'],
                 'signed_pdf_sha256' => $result['sha256'],
             ]);
+
+            if ($target instanceof Contrat) {
+                try {
+                    event(new ContractSignatureUpdated($target->id, 'signe', $result['sha256']));
+                } catch (\Throwable $e) {
+                    Log::warning('Diffusion Reverb (signature complétée) échouée, ignorée : ' . $e->getMessage());
+                }
+            }
         } catch (\Throwable $e) {
             Log::error("Erreur téléchargement document signé Documenso ({$envelopeId}) : " . $e->getMessage());
         }

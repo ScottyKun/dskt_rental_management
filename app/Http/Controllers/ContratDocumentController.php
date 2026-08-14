@@ -106,6 +106,19 @@ class ContratDocumentController extends Controller
         return $this->documentService->download($document);
     }
 
+    // Previsualisation inline (voir sans telecharger), meme regle d'acces que le download
+    public function viewInline(Contrat $contrat, ContratDocument $document)
+    {
+        $this->guardBelongsToContrat($contrat, $document);
+
+        $user = Auth::user();
+        if ($user->role === 'locataire' && $user->id !== $contrat->tenant_id) {
+            abort(403);
+        }
+
+        return $this->documentService->viewInline($document);
+    }
+
     private function authorizeManagement(Contrat $contrat): void
     {
         $user = Auth::user();

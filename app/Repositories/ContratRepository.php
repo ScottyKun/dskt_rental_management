@@ -9,7 +9,14 @@ class ContratRepository
     //creer un contrat
     public function create(array $data)
     {
-        return Contrat::create($data);
+        $contrat = Contrat::create($data);
+
+        // Numero genere apres coup a partir de l'id (garanti unique, sequentiel)
+        $contrat->update([
+            'numero' => 'CTR-' . $contrat->created_at->format('Y') . '-' . str_pad($contrat->id, 5, '0', STR_PAD_LEFT),
+        ]);
+
+        return $contrat;
     }
 
     public function countsAll(): array

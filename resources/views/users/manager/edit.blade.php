@@ -60,6 +60,18 @@
                 class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
 
+        <div>
+            <label class="block mb-1 font-semibold">N° CNI</label>
+            <input type="text" name="cni_number" value="{{ old('cni_number', $locataire->cni_number ?? '') }}"
+                class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <div>
+            <label class="block mb-1 font-semibold">Profession</label>
+            <input type="text" name="profession" value="{{ old('profession', $locataire->profession ?? '') }}"
+                class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
         <input type="hidden" name="role" value="locataire">
 
         <button type="submit"

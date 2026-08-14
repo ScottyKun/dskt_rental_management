@@ -5,7 +5,7 @@
 @section('dashboard-content')
 <div class="max-w-xl mx-auto my-2 sm:my-6">
     <form action="{{ route('contrats.store') }}" method="POST"
-          class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md space-y-5">
+          class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-2xl space-y-5">
         @csrf
 
         <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">
@@ -69,6 +69,50 @@
         <div>
             <label class="block mb-1 font-semibold">Dépôt (CFA)</label>
             <input type="number" name="deposit_amount" class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
+        </div>
+
+        {{-- Date limite de versement du dépôt --}}
+        <div>
+            <label class="block mb-1 font-semibold">Dépôt payable au plus tard le</label>
+            <input type="date" name="deposit_due_date" class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        {{-- Nature du bail --}}
+        <div>
+            <label class="block mb-1 font-semibold">Nature du bail (usage)</label>
+            <input type="text" name="nature_bail" placeholder="ex: habitation, commercial..."
+                   class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        {{-- Garant / caution du locataire --}}
+        <div class="border-t pt-4">
+            <h3 class="font-semibold text-gray-700 mb-3">Garant / caution du locataire (optionnel)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="sm:col-span-2">
+                    <label class="block mb-1 text-sm font-medium">Nom et prénom</label>
+                    <input type="text" name="garant[nom]" class="w-full p-2.5 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block mb-1 text-sm font-medium">N° CNI</label>
+                    <input type="text" name="garant[cni_number]" class="w-full p-2.5 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block mb-1 text-sm font-medium">Téléphone</label>
+                    <input type="text" name="garant[telephone]" class="w-full p-2.5 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block mb-1 text-sm font-medium">Email</label>
+                    <input type="email" name="garant[email]" class="w-full p-2.5 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block mb-1 text-sm font-medium">Profession</label>
+                    <input type="text" name="garant[profession]" class="w-full p-2.5 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block mb-1 text-sm font-medium">Lieu de résidence</label>
+                    <input type="text" name="garant[lieu_residence]" class="w-full p-2.5 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
         </div>
 
         <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">

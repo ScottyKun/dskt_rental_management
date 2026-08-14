@@ -83,6 +83,8 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'cni_number' => 'nullable|string|max:50',
+            'profession' => 'nullable|string|max:100',
             'role' => 'sometimes|in:locataire,admin,gestionnaire',
             'manager_id'=> 'nullable|integer|exists:users,id',
         ]);

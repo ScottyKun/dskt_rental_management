@@ -10,6 +10,37 @@
         <p class="text-sm text-gray-500">Vue d'ensemble de la plateforme</p>
     </div>
 
+    {{-- Actions rapides (en haut) --}}
+    <div>
+        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Actions rapides</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <a href="{{ route('immeubles.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-building text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Ajouter un immeuble</span>
+            </a>
+            <a href="{{ route('appartements.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-door-open text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Ajouter un appartement</span>
+            </a>
+            <a href="{{ route('users.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-user-plus text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Créer un utilisateur</span>
+            </a>
+            <a href="{{ route('contrats.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-file-contract text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Créer un contrat</span>
+            </a>
+            <a href="{{ route('payments.index') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-money-check-dollar text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Voir les paiements</span>
+            </a>
+            <a href="{{ route('users.index') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
+                <i class="fa-solid fa-users text-blue-600 text-xl"></i>
+                <span class="font-medium text-gray-700">Gérer les utilisateurs</span>
+            </a>
+        </div>
+    </div>
+
     {{-- Occupation --}}
     <div>
         <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Occupation</h2>
@@ -34,26 +65,54 @@
         </div>
     </div>
 
-    {{-- Graphiques --}}
+    {{-- Qui a payé / qui n'a pas payé --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-green-700 mb-3">
+                <i class="fa-solid fa-circle-check mr-1"></i>À jour ce mois-ci ({{ count($rentStatus['paid']) }})
+            </h3>
+            <ul class="text-sm divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                @forelse($rentStatus['paid'] as $t)
+                    <li class="py-1.5 flex justify-between"><span>{{ $t['nom'] }}</span><span class="text-gray-400">{{ $t['appartement'] }}</span></li>
+                @empty
+                    <li class="py-2 text-gray-400">Personne pour l'instant.</li>
+                @endforelse
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-red-700 mb-3">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i>Pas encore payé ({{ count($rentStatus['unpaid']) }})
+            </h3>
+            <ul class="text-sm divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                @forelse($rentStatus['unpaid'] as $t)
+                    <li class="py-1.5 flex justify-between"><span>{{ $t['nom'] }}</span><span class="text-gray-400">{{ $t['appartement'] }}</span></li>
+                @empty
+                    <li class="py-2 text-gray-400">Tout le monde est à jour 🎉</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+
+    {{-- Graphiques (taille compacte, hauteur fixe) --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="bg-white rounded-xl shadow p-4 lg:col-span-2">
             <h3 class="text-sm font-semibold text-gray-600 mb-3">Évolution des revenus (6 derniers mois)</h3>
-            <canvas id="revenueTrendChart" height="220"></canvas>
+            <div class="h-40 sm:h-48"><canvas id="revenueTrendChart"></canvas></div>
         </div>
         <div class="bg-white rounded-xl shadow p-4">
             <h3 class="text-sm font-semibold text-gray-600 mb-3">Occupation du parc</h3>
-            <canvas id="occupancyChart" height="220"></canvas>
+            <div class="h-40 sm:h-48"><canvas id="occupancyChart"></canvas></div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="bg-white rounded-xl shadow p-4 lg:col-span-2">
             <h3 class="text-sm font-semibold text-gray-600 mb-3">Revenus du mois par gestionnaire</h3>
-            <canvas id="revenueByManagerChart" height="220"></canvas>
+            <div class="h-40 sm:h-48"><canvas id="revenueByManagerChart"></canvas></div>
         </div>
         <div class="bg-white rounded-xl shadow p-4">
             <h3 class="text-sm font-semibold text-gray-600 mb-3">Statut des contrats</h3>
-            <canvas id="contractsChart" height="220"></canvas>
+            <div class="h-40 sm:h-48"><canvas id="contractsChart"></canvas></div>
         </div>
     </div>
 
@@ -128,37 +187,6 @@
         </div>
     </div>
 
-    {{-- Actions rapides --}}
-    <div>
-        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Actions rapides</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <a href="{{ route('immeubles.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
-                <i class="fa-solid fa-building text-blue-600 text-xl"></i>
-                <span class="font-medium text-gray-700">Ajouter un immeuble</span>
-            </a>
-            <a href="{{ route('appartements.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
-                <i class="fa-solid fa-door-open text-blue-600 text-xl"></i>
-                <span class="font-medium text-gray-700">Ajouter un appartement</span>
-            </a>
-            <a href="{{ route('users.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
-                <i class="fa-solid fa-user-plus text-blue-600 text-xl"></i>
-                <span class="font-medium text-gray-700">Créer un utilisateur</span>
-            </a>
-            <a href="{{ route('contrats.create') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
-                <i class="fa-solid fa-file-contract text-blue-600 text-xl"></i>
-                <span class="font-medium text-gray-700">Créer un contrat</span>
-            </a>
-            <a href="{{ route('payments.index') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
-                <i class="fa-solid fa-money-check-dollar text-blue-600 text-xl"></i>
-                <span class="font-medium text-gray-700">Voir les paiements</span>
-            </a>
-            <a href="{{ route('users.index') }}" class="flex items-center gap-3 bg-white rounded-xl shadow p-4 hover:shadow-md hover:bg-blue-50 transition">
-                <i class="fa-solid fa-users text-blue-600 text-xl"></i>
-                <span class="font-medium text-gray-700">Gérer les utilisateurs</span>
-            </a>
-        </div>
-    </div>
-
 </div>
 
 <script>
@@ -181,16 +209,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 fill: true,
             }]
         },
-        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
     new Chart(document.getElementById('occupancyChart'), {
         type: 'doughnut',
         data: {
             labels: occupancy.labels,
-            datasets: [{ data: occupancy.data, backgroundColor: ['#2563eb', '#22c55e'] }]
+            datasets: [{ data: occupancy.data, backgroundColor: ['#2563eb', '#22c55e', '#f59e0b'] }]
         },
-        options: { responsive: true, maintainAspectRatio: true }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 
     new Chart(document.getElementById('contractsChart'), {
@@ -199,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: contracts.labels,
             datasets: [{ data: contracts.data, backgroundColor: ['#2563eb', '#ef4444'] }]
         },
-        options: { responsive: true, maintainAspectRatio: true }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 
     new Chart(document.getElementById('revenueByManagerChart'), {
@@ -208,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: revenueByManager.labels,
             datasets: [{ label: 'Revenus du mois (CFA)', data: revenueByManager.data, backgroundColor: '#2563eb' }]
         },
-        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 });
 </script>

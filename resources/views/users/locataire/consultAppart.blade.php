@@ -1,10 +1,10 @@
 @extends('layouts.dashboard')
 
 @section('dashboard-content')
-<div class="max-w-4xl mx-auto mt-8 space-y-4">
+<div class="max-w-4xl mx-auto mt-4 sm:mt-8 space-y-5">
 
     {{-- Mini-dashboard personnel --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <x-kpi-card
             label="Loyer"
             :value="$mini['loyer_a_jour'] === null ? '—' : ($mini['loyer_a_jour'] ? 'À jour' : 'En retard')"
@@ -28,115 +28,143 @@
     </div>
 
     @if($appartement)
-        <div class="bg-white shadow-lg rounded-xl p-6">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-4">
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-700">{{ $appartement->name }}</h2>
-                <span class="text-sm font-medium text-gray-500">
-                    {{ ucfirst($appartement->status) }}
-                </span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{-- Infos principales --}}
-                <div>
-                    <p class="text-gray-600"><span class="font-semibold">Description :</span> {{ $appartement->description ?? '—' }}</p>
-                    <p class="text-gray-600"><span class="font-semibold">Type :</span> {{ $appartement->type ?? '—' }}</p>
-                    <p class="text-gray-600"><span class="font-semibold">Surface :</span> {{ $appartement->area }} m²</p>
-                    <p class="text-gray-600"><span class="font-semibold">Loyer :</span> 
-                        {{ number_format($appartement->rent, 2, ',', ' ') }} CFA
-                    </p>
-                </div>
-
-                {{-- Immeuble --}}
-                <div>
-                    <p class="text-gray-600"><span class="font-semibold">Immeuble :</span> {{ $appartement->immeuble->name ?? '—' }}</p>
-                    <p class="text-gray-600"><span class="font-semibold">Localisation :</span> 
-                        {{ ($appartement->immeuble->address ?? '') . ' ' . ($appartement->immeuble->town ?? '') }}
-                    </p>
-                    <p class="text-gray-600"><span class="font-semibold">Gestionnaire :</span> 
-                        {{ ($appartement->immeuble->manager->surname ?? '') . ' '. ($appartement->immeuble->manager->name ?? '') }}
-                    </p>
-                </div>
-
-                {{-- Statut contrat --}}
-                <div>
-                    <p class="text-gray-600"><span class="font-semibold">Statut contrat :</span> 
-                        {{ $appartement->contratActif->status ?? '— Aucun contrat —' }}
-                    </p>
+        {{-- Hero : logement --}}
+        <div class="bg-white rounded-2xl shadow overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-500 px-5 sm:px-8 py-6 text-white">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div>
+                        <p class="text-blue-100 text-xs uppercase tracking-wide font-medium">Mon logement</p>
+                        <h1 class="text-2xl sm:text-3xl font-bold">{{ $appartement->name }}</h1>
+                        <p class="text-blue-100 mt-1">
+                            <i class="fa-solid fa-location-dot mr-1"></i>
+                            {{ $appartement->immeuble->name ?? '' }} — {{ $appartement->immeuble->address ?? '' }} {{ $appartement->immeuble->town ?? '' }}
+                        </p>
+                    </div>
+                    <span class="self-start sm:self-auto bg-white/20 backdrop-blur px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fa-solid fa-circle-check mr-1"></i>{{ ucfirst($appartement->status) }}
+                    </span>
                 </div>
             </div>
-            <hr class="my-6">
-            {{-- Actions locataire --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 
-                <!-- Voir mes contrats -->
-                <a href="{{ route('contrats.index') }}"
-                class="flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-6h13m-2 0V5H6v6H2l10 10 10-10h-5z"/>
-                    </svg>
-                    Mes contrats
-                </a>
+            {{-- Infos en icones --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 p-5 sm:p-8">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                        <i class="fa-solid fa-ruler-combined"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Type & surface</p>
+                        <p class="font-medium text-gray-800">{{ ucfirst($appartement->type) }} · {{ number_format($appartement->area, 0) }} m²</p>
+                    </div>
+                </div>
 
-                <!-- Payer mon loyer -->
-                <form action="{{ route('payments.sendRequest') }}" method="POST">
-                    @csrf
-                    <button type="submit"
-                    class="w-full flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-                        </svg>
-                        Payer mon loyer
-                    </button>
-                </form>
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Loyer mensuel</p>
+                        <p class="font-medium text-gray-800">{{ number_format($appartement->rent, 0, ',', ' ') }} CFA</p>
+                    </div>
+                </div>
 
-                <!-- Demander un préavis de départ -->
-                <a href="{{ route('messages.request.create') }}"
-                class="flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 7h18M3 12h18M3 17h18"/>
-                    </svg>
-                    Demander un préavis
-                </a>
+                @if($appartement->description)
+                <div class="flex items-start gap-3 sm:col-span-2">
+                    <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <i class="fa-solid fa-align-left"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Description</p>
+                        <p class="font-medium text-gray-800">{{ $appartement->description }}</p>
+                    </div>
+                </div>
+                @endif
 
-                <!-- Signaler une panne -->
-                <a href="{{ route('messages.request.create') }}"
-                class="flex items-center justify-center bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M18.364 5.636l-12.728 12.728"/>
-                    </svg>
-                    Signaler une panne
-                </a>
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Gestionnaire</p>
+                        <p class="font-medium text-gray-800">{{ $appartement->immeuble->manager->name ?? '—' }} {{ $appartement->immeuble->manager->surname ?? '' }}</p>
+                    </div>
+                </div>
 
-                <!-- Voir mes factures -->
-                <a href="{{ route('payments.index') }}"
-                class="flex items-center justify-center bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h18v18H3z"/>
-                    </svg>
-                    Mes paiements
-                </a>
-
-                <a href="{{ route('receipts.index') }}"
-                class="flex items-center justify-center bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-center transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h18v18H3z"/>
-                    </svg>
-                    Mes factures
-                </a>
-
+                @if($mini['contrat'])
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Contrat</p>
+                        <p class="font-medium text-gray-800">
+                            {{ ucfirst($mini['contrat']->status) }}
+                            @if($mini['signature_status'])
+                                · signature {{ str_replace('_', ' ', $mini['signature_status']) }}
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
+        {{-- Actions --}}
+        <div class="bg-white rounded-2xl shadow p-5 sm:p-6">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Actions rapides</h2>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {{-- Payer mon loyer --}}
+                <form action="{{ route('payments.sendRequest') }}" method="POST" class="contents">
+                    @csrf
+                    <button type="submit" class="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-green-200 hover:bg-green-50 transition text-center">
+                        <span class="w-11 h-11 rounded-full bg-green-100 text-green-600 flex items-center justify-center group-hover:scale-105 transition">
+                            <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                        </span>
+                        <span class="text-sm font-medium text-gray-700">Payer mon loyer</span>
+                    </button>
+                </form>
+
+                <a href="{{ route('contrats.index') }}" class="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition text-center">
+                    <span class="w-11 h-11 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition">
+                        <i class="fa-solid fa-file-contract text-lg"></i>
+                    </span>
+                    <span class="text-sm font-medium text-gray-700">Mes contrats</span>
+                </a>
+
+                <a href="{{ route('payments.index') }}" class="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition text-center">
+                    <span class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition">
+                        <i class="fa-solid fa-receipt text-lg"></i>
+                    </span>
+                    <span class="text-sm font-medium text-gray-700">Mes paiements</span>
+                </a>
+
+                <a href="{{ route('receipts.index') }}" class="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition text-center">
+                    <span class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition">
+                        <i class="fa-solid fa-file-invoice text-lg"></i>
+                    </span>
+                    <span class="text-sm font-medium text-gray-700">Mes factures</span>
+                </a>
+
+                <a href="{{ route('messages.request.create') }}" class="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-amber-200 hover:bg-amber-50 transition text-center">
+                    <span class="w-11 h-11 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-105 transition">
+                        <i class="fa-solid fa-calendar-days text-lg"></i>
+                    </span>
+                    <span class="text-sm font-medium text-gray-700">Demander un préavis</span>
+                </a>
+
+                <a href="{{ route('messages.request.create') }}" class="group flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50 transition text-center">
+                    <span class="w-11 h-11 rounded-full bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-105 transition">
+                        <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                    </span>
+                    <span class="text-sm font-medium text-gray-700">Signaler une panne</span>
+                </a>
+            </div>
+        </div>
     @else
-        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg">
-            Vous n'avez pas encore de logement assigné.
+        <div class="bg-white rounded-2xl shadow p-8 text-center">
+            <i class="fa-solid fa-house-circle-xmark text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">Vous n'avez pas encore de logement assigné.</p>
         </div>
     @endif
 

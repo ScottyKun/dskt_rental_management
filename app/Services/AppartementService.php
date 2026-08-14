@@ -51,10 +51,13 @@ class AppartementService{
                 ]);
             } 
             
-            // Vérifie si l’immeuble a des appartements disponibles
-            if ($immeuble->nb_available <= 0) {
+            // Vérifie que le nombre d'appartements existants n'excède pas la capacité déclarée
+            // de l'immeuble (comptage reel, independant du compteur nb_available qui ne
+            // reflete pas tous les statuts).
+            $nbExistants = $this->appartementRepository->countByImmeuble($immeuble->id);
+            if ($nbExistants >= $immeuble->nb_apartments) {
                 throw ValidationException::withMessages([
-                    'immeuble_id' => 'Impossible de créer un appartement : l’immeuble n’a plus de places disponibles.'
+                    'immeuble_id' => "Impossible de créer un appartement : la capacité de l'immeuble ({$immeuble->nb_apartments}) est déjà atteinte."
                 ]);
             }
 

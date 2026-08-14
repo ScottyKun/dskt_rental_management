@@ -144,6 +144,10 @@ class PaymentService
                 throw new \Exception('Le paiement doit être confirmé pour générer un reçu');
             }
 
+            if ($payment->receipts()->exists()) {
+                throw new \Exception('Ce paiement possède déjà un reçu. Un seul reçu par paiement est autorisé.');
+            }
+
             // Générer un numéro de reçu unique
             $receiptNumber = $this->generateUniqueReceiptNumber();
 

@@ -130,6 +130,24 @@ class ContratDocumentService
     }
 
     /**
+     * Affichage inline (dans le navigateur, sans forcer le telechargement) -
+     * utile pour previsualiser rapidement une CNI sans devoir ouvrir un fichier telecharge.
+     */
+    public function viewInline(ContratDocument $document)
+    {
+        if (!Storage::disk('minio')->exists($document->file_path)) {
+            throw new RuntimeException('Fichier introuvable.');
+        }
+
+        $mimeType = Storage::disk('minio')->mimeType($document->file_path) ?? 'application/octet-stream';
+
+        return Storage::disk('minio')->response($document->file_path, $document->original_name, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $document->original_name . '"',
+        ]);
+    }
+
+    /**
      * Espace CNI : liste des dernieres pieces jointes par contrat, scopee par role,
      * avec recherche par nom de locataire et filtre par statut.
      */

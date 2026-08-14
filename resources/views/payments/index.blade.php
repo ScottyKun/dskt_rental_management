@@ -35,6 +35,7 @@
                     <th class="px-6 py-3 cursor-pointer">Date</th>
                     <th class="px-6 py-3 cursor-pointer">Locataire</th>
                     <th class="px-6 py-3 cursor-pointer">Gestionnaire</th>
+                    <th class="px-6 py-3">Motif</th>
                     <th class="px-6 py-3">Méthode</th>
                     <th class="px-6 py-3">Montant</th>
                     <th class="px-6 py-3">Actions</th>
@@ -52,6 +53,14 @@
                     </td>
                     <td class="px-6 py-4">
                         {{ $payment->manager->name }} {{ $payment->manager->surname }}
+                    </td>
+                    <td class="px-6 py-4">
+                        @php
+                            $motifLabels = ['loyer' => 'Loyer', 'caution' => 'Caution', 'reparation' => 'Réparation', 'autre' => 'Autre'];
+                        @endphp
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                            {{ $motifLabels[$payment->motif] ?? '—' }}
+                        </span>
                     </td>
                     <td class="px-6 py-4">
                         {{ $payment->paymentMethod->label }}
@@ -72,10 +81,17 @@
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </a>
 
-                            <a href="{{ route('receipts.periods', $payment->id) }}"
-                               class="text-blue-500 hover:text-blue-700" title="Générer un reçu">
-                                <i class="fa-solid fa-receipt"></i>
-                            </a>
+                            @if(!$payment->receipts)
+                                <a href="{{ route('receipts.periods', $payment->id) }}"
+                                   class="text-blue-500 hover:text-blue-700" title="Générer un reçu">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </a>
+                            @else
+                                <a href="{{ route('receipts.show', $payment->receipts->id) }}"
+                                   class="text-green-600 hover:text-green-800" title="Voir le reçu existant">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </a>
+                            @endif
 
                             <form action="{{ route('payments.destroy', $payment->id) }}"
                                   method="POST"

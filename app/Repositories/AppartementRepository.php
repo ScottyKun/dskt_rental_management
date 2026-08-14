@@ -13,6 +13,11 @@ class AppartementRepository
         return Appartement::create($data);
     }
 
+    public function countByImmeuble(int $immeubleId): int
+    {
+        return Appartement::where('immeuble_id', $immeubleId)->count();
+    }
+
     //supprimer un appartement
     public function delete(int $id): bool
     {

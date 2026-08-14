@@ -5,12 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'DSKT Rental')</title>
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+
+    <meta name="theme-color" content="#ffffff">
+
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DSKT Rental">
+
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @livewireStyles
 </head>
-@livewireStyles
-@livewireScripts
+
 
 <body x-data="{ sidebarOpen: false }" class="bg-gray-100 text-gray-900 h-screen flex flex-col overflow-hidden">
 
@@ -73,6 +86,7 @@
 
     <!-- Contenu principal -->
     @yield('content')
-
+    @livewireScripts
+    @livewireScriptConfig
 </body>
 </html>

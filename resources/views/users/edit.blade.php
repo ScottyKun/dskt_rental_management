@@ -84,6 +84,18 @@
                 class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
 
+        <div>
+            <label class="block mb-1 font-semibold">N° CNI</label>
+            <input type="text" name="cni_number" value="{{ old('cni_number', $user->cni_number) }}"
+                class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <div>
+            <label class="block mb-1 font-semibold">Profession</label>
+            <input type="text" name="profession" value="{{ old('profession', $user->profession) }}"
+                class="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
         <button type="submit"
             class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">
             <i class="fa-solid fa-paper-plane mr-2"></i>Mettre à jour

@@ -27,6 +27,7 @@ class DashboardController extends Controller
                 'occupancyDonut' => $this->dashboardService->occupancyDonut(),
                 'contractsDonut' => $this->dashboardService->contractsStatusDonut(),
                 'revenueByManager' => $this->dashboardService->revenueByManagerChart(),
+                'rentStatus' => $this->dashboardService->rentPaymentStatusList(),
             ]),
             'gestionnaire' => view('dashboards.gestionnaire', [
                 'user' => $user,
@@ -34,6 +35,7 @@ class DashboardController extends Controller
                 'revenueTrend' => $this->dashboardService->revenueTrend($user->id),
                 'occupancyDonut' => $this->dashboardService->occupancyDonut($user->id),
                 'contractsDonut' => $this->dashboardService->contractsStatusDonut($user->id),
+                'rentStatus' => $this->dashboardService->rentPaymentStatusList($user->id),
             ]),
             // Le locataire n'a pas de page d'accueil generique : son "accueil" est directement son logement,
             // qui embarque son propre mini-dashboard (voir AppartementController::locataire).

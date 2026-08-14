@@ -5,7 +5,6 @@
 
     <div>
         <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Pièces d'identité</h1>
-        <p class="text-sm text-gray-500">Une ligne par contrat, la pièce la plus récente transmise.</p>
     </div>
 
     {{-- Recherche + filtre --}}
@@ -68,9 +67,13 @@
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">{{ $document->created_at->format('d/m/Y H:i') }}</td>
                         <td class="px-4 py-3 whitespace-nowrap">
-                            <a href="{{ route('contrats.document.download', [$document->contrat_id, $document->id]) }}"
-                               class="text-blue-600 hover:underline">
+                            <a href="{{ route('contrats.document.view', [$document->contrat_id, $document->id]) }}"
+                               target="_blank" class="text-blue-600 hover:underline mr-3">
                                 <i class="fa-solid fa-eye mr-1"></i>Voir
+                            </a>
+                            <a href="{{ route('contrats.document.download', [$document->contrat_id, $document->id]) }}"
+                               class="text-gray-600 hover:underline">
+                                <i class="fa-solid fa-download mr-1"></i>Télécharger
                             </a>
                         </td>
                     </tr>

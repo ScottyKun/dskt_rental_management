@@ -6,6 +6,7 @@ use Illuminate\Validation\ValidationException;
 use App\Repositories\MessageRepository;
 use App\Repositories\UserRepository;
 use App\Notifications\NewMessageNotification;
+use App\Events\NewNotificationEvent;
 
 class MessageService{
     protected $messageRepository;
@@ -19,7 +20,9 @@ class MessageService{
     //Creer un message
     public function create(array $data)
     {
-        return $this->messageRepository->create($data);
+        $message = $this->messageRepository->create($data);
+        $this->broadcastToReceiver((int) $data['receiver_id'], $data['title'] ?? 'Nouveau message');
+        return $message;
     }
 
     //envoyer un message aux admins et gestionnaires
@@ -37,6 +40,7 @@ class MessageService{
             ]);
 
             $receiver->notify(new NewMessageNotification($message));
+            $this->broadcastToReceiver($receiver->id, $title);
         }
     }
 
@@ -86,6 +90,7 @@ class MessageService{
             ]);
 
             $receiver->notify(new NewMessageNotification($message));
+            $this->broadcastToReceiver($receiver->id, $data['title']);
         }
     }
 
@@ -106,5 +111,30 @@ class MessageService{
         ]);
 
         $tenant->notify(new NewMessageNotification($message));
+        $this->broadcastToReceiver($tenant->id, $title);
     }
-}    
+
+    private function broadcastToReceiver(int $receiverId, string $title): void
+    {
+        try {
+            $unreadCount = $this->messageRepository
+                ->getUnreadByUser($receiverId)
+                ->count();
+
+            event(new NewNotificationEvent(
+                $receiverId,
+                $title,
+                $unreadCount
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error(
+                'Erreur diffusion Reverb',
+                [
+                    'receiver_id' => $receiverId,
+                    'title' => $title,
+                    'error' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+}

@@ -211,7 +211,7 @@ class PaymentController extends Controller
         if (!$sent) {
             return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'envoi de la demande de paiement.');
         }
-        return redirect()->route('payments.index')->with('success', 'Demande de paiement envoyée avec succès.');
+        return redirect()->route('tenant.logement')->with('success', 'Demande de paiement envoyée avec succès.');
     }
     //search payment
     public function searchPayment(Request $request)

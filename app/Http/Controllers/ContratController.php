@@ -39,8 +39,16 @@ class ContratController extends Controller
             'rent_amount'       => 'required|numeric|min:1',
             'rent_payment_day'  => 'required|integer|min:1|max:31',
             'deposit_amount'    => 'required|numeric|min:0',
+            'deposit_due_date'  => 'nullable|date',
+            'nature_bail'       => 'nullable|string|max:100',
             'tenant_id'         => 'required|exists:users,id',
             'appartement_id'    => 'required|exists:appartements,id',
+            'garant.nom'             => 'nullable|string|max:255',
+            'garant.cni_number'      => 'nullable|string|max:50',
+            'garant.telephone'       => 'nullable|string|max:30',
+            'garant.email'           => 'nullable|email|max:255',
+            'garant.lieu_residence'  => 'nullable|string|max:255',
+            'garant.profession'      => 'nullable|string|max:100',
         ]);
 
         $contrat=$this->contratService->create($data);
@@ -73,9 +81,17 @@ class ContratController extends Controller
             'rent_amount'       => 'required|numeric|min:1',
             'rent_payment_day'  => 'required|integer|min:1|max:31',
             'deposit_amount'    => 'required|numeric|min:0',
+            'deposit_due_date'  => 'nullable|date',
+            'nature_bail'       => 'nullable|string|max:100',
             'tenant_id'         => 'required|exists:users,id',
             'appartement_id'    => 'required|exists:appartements,id',
-            'status'            => 'required'
+            'status'            => 'required',
+            'garant.nom'             => 'nullable|string|max:255',
+            'garant.cni_number'      => 'nullable|string|max:50',
+            'garant.telephone'       => 'nullable|string|max:30',
+            'garant.email'           => 'nullable|email|max:255',
+            'garant.lieu_residence'  => 'nullable|string|max:255',
+            'garant.profession'      => 'nullable|string|max:100',
         ]);
 
         $contrat=$this->contratService->update($id, $data);

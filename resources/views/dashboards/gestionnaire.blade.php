@@ -10,50 +10,7 @@
         <p class="text-sm text-gray-500">Vue d'ensemble de votre parc</p>
     </div>
 
-    {{-- Occupation & contrats --}}
-    <div>
-        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Mon parc</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            <x-kpi-card label="Immeubles" :value="$kpis['immeubles']" />
-            <x-kpi-card label="Taux d'occupation" :value="$kpis['taux_occupation'] . '%'" color="blue" />
-            <x-kpi-card label="Occupés" :value="$kpis['appartements_occupes']" />
-            <x-kpi-card label="Disponibles" :value="$kpis['appartements_disponibles']" color="green" />
-            <x-kpi-card label="Locataires actifs" :value="$kpis['locataires_actifs']" />
-        </div>
-    </div>
-
-    {{-- Graphiques --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="bg-white rounded-xl shadow p-4 lg:col-span-2">
-            <h3 class="text-sm font-semibold text-gray-600 mb-3">Évolution de mes revenus (6 derniers mois)</h3>
-            <canvas id="revenueTrendChart" height="220"></canvas>
-        </div>
-        <div class="bg-white rounded-xl shadow p-4">
-            <h3 class="text-sm font-semibold text-gray-600 mb-3">Occupation de mon parc</h3>
-            <canvas id="occupancyChart" height="220"></canvas>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="bg-white rounded-xl shadow p-4">
-            <h3 class="text-sm font-semibold text-gray-600 mb-3">Statut de mes contrats</h3>
-            <canvas id="contractsChart" height="220"></canvas>
-        </div>
-    </div>
-
-    {{-- Finance & suivi --}}
-    <div>
-        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Finance & suivi</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            <x-kpi-card label="Revenus du mois" :value="number_format($kpis['revenus_du_mois'], 0, ',', ' ') . ' CFA'" color="blue" />
-            <x-kpi-card label="Montant impayé" :value="number_format($kpis['montant_impaye'], 0, ',', ' ') . ' CFA'" color="red" />
-            <x-kpi-card label="Loyers en retard" :value="$kpis['nb_loyers_en_retard']" color="amber" />
-            <x-kpi-card label="Contrats expirent -30j" :value="$kpis['contrats_expirant_30j']" color="amber" />
-            <x-kpi-card label="CNI en attente" :value="$kpis['cni_en_attente']" color="amber" />
-        </div>
-    </div>
-
-    {{-- Actions rapides --}}
+    {{-- Actions rapides (en haut) --}}
     <div>
         <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Actions rapides</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -84,6 +41,77 @@
         </div>
     </div>
 
+    {{-- Occupation & contrats --}}
+    <div>
+        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Mon parc</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <x-kpi-card label="Immeubles" :value="$kpis['immeubles']" />
+            <x-kpi-card label="Taux d'occupation" :value="$kpis['taux_occupation'] . '%'" color="blue" />
+            <x-kpi-card label="Occupés" :value="$kpis['appartements_occupes']" />
+            <x-kpi-card label="Disponibles" :value="$kpis['appartements_disponibles']" color="green" />
+            <x-kpi-card label="Locataires actifs" :value="$kpis['locataires_actifs']" />
+        </div>
+    </div>
+
+    {{-- Finance & suivi --}}
+    <div>
+        <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-3">Finance & suivi</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            <x-kpi-card label="Revenus du mois" :value="number_format($kpis['revenus_du_mois'], 0, ',', ' ') . ' CFA'" color="blue" />
+            <x-kpi-card label="Montant impayé" :value="number_format($kpis['montant_impaye'], 0, ',', ' ') . ' CFA'" color="red" />
+            <x-kpi-card label="Loyers en retard" :value="$kpis['nb_loyers_en_retard']" color="amber" />
+            <x-kpi-card label="Contrats expirent -30j" :value="$kpis['contrats_expirant_30j']" color="amber" />
+            <x-kpi-card label="CNI en attente" :value="$kpis['cni_en_attente']" color="amber" />
+        </div>
+    </div>
+
+    {{-- Qui a payé / qui n'a pas payé --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-green-700 mb-3">
+                <i class="fa-solid fa-circle-check mr-1"></i>À jour ce mois-ci ({{ count($rentStatus['paid']) }})
+            </h3>
+            <ul class="text-sm divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                @forelse($rentStatus['paid'] as $t)
+                    <li class="py-1.5 flex justify-between"><span>{{ $t['nom'] }}</span><span class="text-gray-400">{{ $t['appartement'] }}</span></li>
+                @empty
+                    <li class="py-2 text-gray-400">Personne pour l'instant.</li>
+                @endforelse
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-red-700 mb-3">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i>Pas encore payé ({{ count($rentStatus['unpaid']) }})
+            </h3>
+            <ul class="text-sm divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                @forelse($rentStatus['unpaid'] as $t)
+                    <li class="py-1.5 flex justify-between"><span>{{ $t['nom'] }}</span><span class="text-gray-400">{{ $t['appartement'] }}</span></li>
+                @empty
+                    <li class="py-2 text-gray-400">Tout le monde est à jour 🎉</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+
+    {{-- Graphiques (taille compacte, hauteur fixe) --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow p-4 lg:col-span-2">
+            <h3 class="text-sm font-semibold text-gray-600 mb-3">Évolution de mes revenus (6 derniers mois)</h3>
+            <div class="h-40 sm:h-48"><canvas id="revenueTrendChart"></canvas></div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-gray-600 mb-3">Occupation de mon parc</h3>
+            <div class="h-40 sm:h-48"><canvas id="occupancyChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-sm font-semibold text-gray-600 mb-3">Statut de mes contrats</h3>
+            <div class="h-40 sm:h-48"><canvas id="contractsChart"></canvas></div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -105,16 +133,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 fill: true,
             }]
         },
-        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
     new Chart(document.getElementById('occupancyChart'), {
         type: 'doughnut',
         data: {
             labels: occupancy.labels,
-            datasets: [{ data: occupancy.data, backgroundColor: ['#2563eb', '#22c55e'] }]
+            datasets: [{ data: occupancy.data, backgroundColor: ['#2563eb', '#22c55e', '#f59e0b'] }]
         },
-        options: { responsive: true, maintainAspectRatio: true }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 
     new Chart(document.getElementById('contractsChart'), {
@@ -123,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: contracts.labels,
             datasets: [{ data: contracts.data, backgroundColor: ['#2563eb', '#ef4444'] }]
         },
-        options: { responsive: true, maintainAspectRatio: true }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 });
 </script>

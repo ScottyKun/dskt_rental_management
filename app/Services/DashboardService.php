@@ -123,23 +123,38 @@ class DashboardService
     {
         $contrat = Contrat::where('tenant_id', $tenantId)->where('status', 'actif')->latest()->first();
 
-        $dernierPaiementConfirme = Payment::where('tenant_id', $tenantId)
-            ->confirmed()
-            ->orderByDesc('paid_at')
-            ->first();
-
-        $loyerAJour = $dernierPaiementConfirme
-            && $dernierPaiementConfirme->paid_at->isSameMonth(Carbon::now())
-            && $dernierPaiementConfirme->paid_at->isSameYear(Carbon::now());
-
         return [
             'contrat' => $contrat,
-            'jours_restants_contrat' => $contrat ? Carbon::now()->diffInDays($contrat->end_date, false) : null,
-            'loyer_a_jour' => $loyerAJour,
+            'jours_restants_contrat' => $contrat ? (int) round(Carbon::now()->diffInDays($contrat->end_date, false)) : null,
+            'loyer_a_jour' => $contrat ? $this->loyerAJour($contrat) : null,
+            'jour_paiement' => $contrat->rent_payment_day ?? null,
             'document_status' => $contrat->document_status ?? null,
             'signature_status' => $contrat->signature_status ?? null,
-            'jour_paiement' => $contrat->rent_payment_day ?? null,
         ];
+    }
+
+    /**
+     * Le loyer est "a jour" si :
+     * - il a ete paye ce mois-ci, OU
+     * - on n'a pas encore atteint le jour d'echeance du mois en cours (pas encore du).
+     * Il est "en retard" uniquement si le jour d'echeance est passe sans paiement confirme ce mois-ci.
+     */
+    private function loyerAJour(Contrat $contrat): bool
+    {
+        $now = Carbon::now();
+
+        $payeCeMois = Payment::where('tenant_id', $contrat->tenant_id)
+            ->confirmed()
+            ->whereMonth('paid_at', $now->month)
+            ->whereYear('paid_at', $now->year)
+            ->exists();
+
+        if ($payeCeMois) {
+            return true;
+        }
+
+        // Pas encore paye ce mois : a jour tant que l'echeance n'est pas encore passee.
+        return $now->day < $contrat->rent_payment_day;
     }
 
     // ------------------------------------------------------------------
@@ -170,10 +185,11 @@ class DashboardService
             : Appartement::query();
 
         return [
-            'labels' => ['Occupés', 'Disponibles'],
+            'labels' => ['Occupés', 'Disponibles', 'En rénovation'],
             'data' => [
                 (clone $query)->where('status', 'occupe')->count(),
                 (clone $query)->where('status', 'disponible')->count(),
+                (clone $query)->where('status', 'en_renovation')->count(),
             ],
         ];
     }
@@ -289,6 +305,47 @@ class DashboardService
         });
 
         return $count;
+    }
+
+    /**
+     * Liste nominative des locataires actifs, separee en "a jour" et "en retard/a venir",
+     * pour affichage direct sur le dashboard (KPI demande : qui a paye / qui n'a pas paye).
+     */
+    public function rentPaymentStatusList(?int $managerId = null): array
+    {
+        $query = Contrat::where('status', 'actif')->with('tenant', 'appartement');
+        if ($managerId) {
+            $query->whereHas('appartement.immeuble', fn($q) => $q->where('manager_id', $managerId));
+        }
+
+        $now = Carbon::now();
+        $paid = [];
+        $unpaid = [];
+
+        $query->get()->each(function (Contrat $contrat) use (&$paid, &$unpaid, $now) {
+            if (!$contrat->tenant) {
+                return;
+            }
+
+            $paye = Payment::where('tenant_id', $contrat->tenant_id)
+                ->confirmed()
+                ->whereMonth('paid_at', $now->month)
+                ->whereYear('paid_at', $now->year)
+                ->exists();
+
+            $entry = [
+                'nom' => trim($contrat->tenant->name . ' ' . $contrat->tenant->surname),
+                'appartement' => $contrat->appartement->name ?? '—',
+            ];
+
+            if ($paye) {
+                $paid[] = $entry;
+            } else {
+                $unpaid[] = $entry;
+            }
+        });
+
+        return ['paid' => $paid, 'unpaid' => $unpaid];
     }
 
     private function tauxRecouvrement(): float

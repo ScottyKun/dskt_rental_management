@@ -102,7 +102,7 @@ class MessageController extends Controller
 
         $this->messageService->sendTenantRequest($id,$data);
 
-        return redirect()->route('contrats.index')->with('success', 'Votre demande a été envoyée aux responsables.');
+        return redirect()->route('tenant.logement')->with('success', 'Votre demande a été envoyée aux responsables.');
     }
 
 }

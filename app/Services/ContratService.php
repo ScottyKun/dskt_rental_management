@@ -11,19 +11,28 @@ use App\Repositories\ContratRepository;
 use App\Repositories\AppartementRepository;
 use App\Repositories\ImmeubleRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\ContratGarantRepository;
 class ContratService
 {
     protected $contratRepository;
     protected $appartementRepository;
     protected $immeubleRepository;
     protected $userRepository;
+    protected $contratGarantRepository;
 
-    public function __construct(ContratRepository $contratRepository, AppartementRepository $appartementRepository, ImmeubleRepository $immeubleRepository, UserRepository $userRepository)
+    public function __construct(
+        ContratRepository $contratRepository,
+        AppartementRepository $appartementRepository,
+        ImmeubleRepository $immeubleRepository,
+        UserRepository $userRepository,
+        ContratGarantRepository $contratGarantRepository
+    )
     {
         $this->contratRepository = $contratRepository;
         $this->appartementRepository = $appartementRepository;
         $this->immeubleRepository = $immeubleRepository;
         $this->userRepository = $userRepository;
+        $this->contratGarantRepository = $contratGarantRepository;
     }
 
     //creer un contrat
@@ -37,11 +46,27 @@ class ContratService
             $data['rent_amount'] = e($data['rent_amount']);
             $data['rent_payment_day'] = e($data['rent_payment_day']);
             $data['deposit_amount'] = e($data['deposit_amount']);
+            $data['deposit_due_date'] = isset($data['deposit_due_date']) ? e($data['deposit_due_date']) : null;
+            $data['nature_bail'] = isset($data['nature_bail']) ? e($data['nature_bail']) : null;
             $data['status'] = e($data['status'] ?? 'actif');
             $data['tenant_id'] = e($data['tenant_id']);
             $data['appartement_id'] = e($data['appartement_id']);
 
+            $garantData = $data['garant'] ?? null;
+            unset($data['garant']);
+
             $contrat=$this->contratRepository->create($data);
+
+            if (!empty($garantData) && !empty($garantData['nom'])) {
+                $this->contratGarantRepository->createOrUpdate($contrat->id, [
+                    'nom' => e($garantData['nom']),
+                    'cni_number' => isset($garantData['cni_number']) ? e($garantData['cni_number']) : null,
+                    'telephone' => isset($garantData['telephone']) ? e($garantData['telephone']) : null,
+                    'email' => isset($garantData['email']) ? e($garantData['email']) : null,
+                    'lieu_residence' => isset($garantData['lieu_residence']) ? e($garantData['lieu_residence']) : null,
+                    'profession' => isset($garantData['profession']) ? e($garantData['profession']) : null,
+                ]);
+            }
 
             //si rent de appartement different de rent_amount, update rent de appartement
             $appartement = $this->appartementRepository->findById($data['appartement_id']);
@@ -100,9 +125,25 @@ class ContratService
             $data['rent_amount'] = e($data['rent_amount'] ?? $contrat->rent_amount);
             $data['rent_payment_day'] = e($data['rent_payment_day'] ?? $contrat->rent_payment_day);
             $data['deposit_amount'] = e($data['deposit_amount'] ?? $contrat->deposit_amount);
+            $data['deposit_due_date'] = isset($data['deposit_due_date']) ? e($data['deposit_due_date']) : $contrat->deposit_due_date;
+            $data['nature_bail'] = isset($data['nature_bail']) ? e($data['nature_bail']) : $contrat->nature_bail;
             $data['status'] = e($data['status'] ?? $contrat->status);
             $data['tenant_id'] = e($data['tenant_id'] ?? $contrat->tenant_id);
             $data['appartement_id'] = e($data['appartement_id'] ?? $contrat->appartement_id);
+
+            $garantData = $data['garant'] ?? null;
+            unset($data['garant']);
+
+            if (!empty($garantData) && !empty($garantData['nom'])) {
+                $this->contratGarantRepository->createOrUpdate($contrat->id, [
+                    'nom' => e($garantData['nom']),
+                    'cni_number' => isset($garantData['cni_number']) ? e($garantData['cni_number']) : null,
+                    'telephone' => isset($garantData['telephone']) ? e($garantData['telephone']) : null,
+                    'email' => isset($garantData['email']) ? e($garantData['email']) : null,
+                    'lieu_residence' => isset($garantData['lieu_residence']) ? e($garantData['lieu_residence']) : null,
+                    'profession' => isset($garantData['profession']) ? e($garantData['profession']) : null,
+                ]);
+            }
 
             //
             $oldAppart = $this->appartementRepository->findById($contrat->appartement_id);

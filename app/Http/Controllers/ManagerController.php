@@ -77,6 +77,8 @@ class ManagerController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'cni_number' => 'nullable|string|max:50',
+            'profession' => 'nullable|string|max:100',
             'role' => 'required|in:locataire,admin,gestionnaire',
         ]);
 

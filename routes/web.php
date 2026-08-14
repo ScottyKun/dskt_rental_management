@@ -147,6 +147,7 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
     });
     Route::post('/contrats/{contrat}/document', [ContratDocumentController::class, 'store'])->name('contrats.document.store');
     Route::get('/contrats/{contrat}/document/{document}/download', [ContratDocumentController::class, 'download'])->name('contrats.document.download');
+    Route::get('/contrats/{contrat}/document/{document}/view', [ContratDocumentController::class, 'viewInline'])->name('contrats.document.view');
 
     // Signature electronique du contrat (Documenso) : envoi reserve a admin/gestionnaire, telechargement ouvert au proprietaire
     Route::post('/contrats/{contrat}/signature/send', [ContratSignatureController::class, 'send'])

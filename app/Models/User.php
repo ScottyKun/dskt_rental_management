@@ -21,6 +21,8 @@ class User extends Authenticatable
         'is_validated',
         'phone',
         'address',
+        'cni_number',
+        'profession',
         'must_change_password',
         'manager_id',
     ];
