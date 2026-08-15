@@ -7,21 +7,30 @@ use App\Repositories\MessageRepository;
 use App\Repositories\UserRepository;
 use App\Notifications\NewMessageNotification;
 use App\Events\NewNotificationEvent;
+use App\Services\WebPushService;
+use Illuminate\Support\Facades\Log;
 
 class MessageService{
     protected $messageRepository;
     protected $userRepository;
-    public function __construct(MessageRepository $messageRepository, UserRepository $userRepository)
-    {
+    protected $webPushService;
+
+    public function __construct(MessageRepository $messageRepository, UserRepository $userRepository, WebPushService $webPushService
+    ) {
         $this->messageRepository = $messageRepository;
         $this->userRepository = $userRepository;
+        $this->webPushService = $webPushService;
     }
 
     //Creer un message
     public function create(array $data)
     {
         $message = $this->messageRepository->create($data);
-        $this->broadcastToReceiver((int) $data['receiver_id'], $data['title'] ?? 'Nouveau message');
+        $this->notifyReceiver(
+            (int) $data['receiver_id'],
+            $data['title'] ?? 'Nouveau message',
+            $data['content'] ?? null
+        );
         return $message;
     }
 
@@ -40,7 +49,11 @@ class MessageService{
             ]);
 
             $receiver->notify(new NewMessageNotification($message));
-            $this->broadcastToReceiver($receiver->id, $title);
+            $this->notifyReceiver(
+                $receiver->id,
+                $title,
+                $content
+            );
         }
     }
 
@@ -90,7 +103,11 @@ class MessageService{
             ]);
 
             $receiver->notify(new NewMessageNotification($message));
-            $this->broadcastToReceiver($receiver->id, $data['title']);
+            $this->notifyReceiver(
+                $receiver->id,
+                $data['title'],
+                $data['content'] ?? null
+            );
         }
     }
 
@@ -111,30 +128,52 @@ class MessageService{
         ]);
 
         $tenant->notify(new NewMessageNotification($message));
-        $this->broadcastToReceiver($tenant->id, $title);
+        $this->notifyReceiver(
+            $tenant->id,
+            $title,
+            $content
+        );
     }
 
-    private function broadcastToReceiver(int $receiverId, string $title): void
-    {
-        try {
-            $unreadCount = $this->messageRepository
-                ->getUnreadByUser($receiverId)
-                ->count();
+    private function notifyReceiver(
+        int $receiverId,
+        string $title,
+        ?string $body = null
+    ): void {
+        $unreadCount = $this->messageRepository
+            ->getUnreadByUser($receiverId)
+            ->count();
 
+        // 1. Notification temps réel dans l'application    → Reverb → Echo → Livewire
+        
+        try {
             event(new NewNotificationEvent(
                 $receiverId,
                 $title,
                 $unreadCount
             ));
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error(
-                'Erreur diffusion Reverb',
-                [
-                    'receiver_id' => $receiverId,
-                    'title' => $title,
-                    'error' => $e->getMessage(),
-                ]
+            Log::error('Erreur diffusion Reverb', [
+                'receiver_id' => $receiverId,
+                'title' => $title,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // 2. Notification système → Web Push → Service Worker → OS
+        try {
+            $this->webPushService->sendToUser(
+                $receiverId,
+                $title,
+                $body ?? 'Vous avez une nouvelle notification.',
+                '/messages'
             );
+        } catch (\Throwable $e) {
+            Log::error('Erreur Web Push', [
+                'receiver_id' => $receiverId,
+                'title' => $title,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }

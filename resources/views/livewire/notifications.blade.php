@@ -1,6 +1,6 @@
 <div class="relative">
     <!-- Icône cloche -->
-    <button type="button" wire:click.stop="toggleDropdown" class="relative focus:outline-none">
+    <button type="button" wire:click.stop="toggleDropdown" onclick="window.enablePushIfNeeded?.()" class="relative focus:outline-none">
         <i class="fa-solid fa-bell text-xl"></i>
         @if($messages->count() > 0)
             <span class="absolute top-0 right-0 inline-block w-3 h-3 bg-red-500 rounded-full"></span>

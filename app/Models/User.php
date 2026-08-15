@@ -99,7 +99,11 @@ class User extends Authenticatable
         return $this->hasMany(Receipt::class, 'generated_by');
     }
 
-
+    //subscpriptions webpush
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
 
 
 }

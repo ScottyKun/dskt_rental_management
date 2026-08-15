@@ -16,6 +16,7 @@ use App\Http\Controllers\ContratSignatureController;
 use App\Http\Controllers\ReceiptSignatureController;
 use App\Http\Controllers\DocumensoWebhookController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PushSubscriptionController;
 
 Route::get("/", fn() => redirect("login"));
 
@@ -41,6 +42,12 @@ Route::middleware(['auth', 'check.validated'])->group(function () {
     Route::get('/mfa/challenge', [MfaController::class, 'showChallenge'])->name('mfa.challenge');
     Route::post('/mfa/verify', [MfaController::class, 'verify'])->name('mfa.verify')->middleware('throttle:10,1');
     Route::post('/mfa/resend', [MfaController::class, 'resend'])->name('mfa.resend')->middleware('throttle:3,1');
+});
+
+// Push Subscription Routes : accessible a tout utilisateur connecte
+Route::middleware(['auth', 'check.validated'])->group(function () {
+    Route::post('/push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::delete('/push/subscribe', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 });
 
 // Tout le reste de l'application authentifiee passe par ces 4 garde-fous :
