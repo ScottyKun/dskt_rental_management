@@ -22,17 +22,18 @@ class AdminSeeder extends Seeder
     $randomPassword = Str::random(12); // 12 caractères aléatoires
 
     // Crée ou met à jour l'admin avec le mot de passe dès l'insertion
-    $admin = User::updateOrCreate(
+    $admin = User::firstOrCreate(
         ['email' => $adminEmail],
         [
             'name' => 'Admin',
-            'surname'=> 'Admin',
+            'surname' => 'Admin',
             'role' => 'admin',
             'is_validated' => true,
             'must_change_password' => true,
-            'password' => Hash::make($randomPassword), // obligatoire pour l'insertion
+            'password' => Hash::make($randomPassword),
         ]
     );
+
 
     // Affiche le mot de passe uniquement si c'est un nouvel admin
     if ($admin->wasRecentlyCreated) {
