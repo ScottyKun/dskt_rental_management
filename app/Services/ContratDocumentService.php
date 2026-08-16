@@ -6,7 +6,9 @@ use App\Models\Contrat;
 use App\Models\ContratDocument;
 use App\Notifications\ContratDocumentRequestedNotification;
 use App\Notifications\ContratDocumentReviewedNotification;
+use App\Notifications\ContratDocumentSubmittedNotification;
 use App\Repositories\ContratDocumentRepository;
+use App\Services\MessageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -15,8 +17,10 @@ use RuntimeException;
 
 class ContratDocumentService
 {
-    public function __construct(protected ContratDocumentRepository $documentRepository)
-    {
+    public function __construct(
+        protected ContratDocumentRepository $documentRepository,
+        protected MessageService $messageService
+    ) {
     }
 
     /**
@@ -32,6 +36,13 @@ class ContratDocumentService
 
         if ($contrat->tenant) {
             $contrat->tenant->notify(new ContratDocumentRequestedNotification($contrat));
+
+            $this->messageService->notifyInApp(
+                $contrat->tenant->id,
+                Auth::id(),
+                'Document requis pour votre contrat',
+                "Votre gestionnaire a besoin d'une pièce d'identité (CNI) pour finaliser votre contrat de location."
+            );
         }
     }
 
@@ -54,6 +65,17 @@ class ContratDocumentService
         ]);
 
         $contrat->update(['document_status' => 'soumis']);
+
+        if ($contrat->documentRequestedBy) {
+            $contrat->documentRequestedBy->notify(new ContratDocumentSubmittedNotification($contrat));
+
+            $this->messageService->notifyInApp(
+                $contrat->documentRequestedBy->id,
+                Auth::id(),
+                'Document transmis',
+                'Le locataire a transmis une pièce pour le contrat n°' . $contrat->numero . '.'
+            );
+        }
 
         return $document;
     }
@@ -98,6 +120,13 @@ class ContratDocumentService
 
         if ($document->contrat->tenant) {
             $document->contrat->tenant->notify(new ContratDocumentReviewedNotification($document, true));
+
+            $this->messageService->notifyInApp(
+                $document->contrat->tenant->id,
+                Auth::id(),
+                'Document validé',
+                'Votre pièce jointe a été validée par votre gestionnaire. Votre contrat peut maintenant être signé.'
+            );
         }
     }
 
@@ -117,6 +146,13 @@ class ContratDocumentService
 
         if ($document->contrat->tenant) {
             $document->contrat->tenant->notify(new ContratDocumentReviewedNotification($document, false));
+
+            $this->messageService->notifyInApp(
+                $document->contrat->tenant->id,
+                Auth::id(),
+                'Document refusé',
+                'Votre pièce jointe a été refusée. Motif : ' . $reason
+            );
         }
     }
 

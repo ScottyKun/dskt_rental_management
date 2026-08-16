@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Contrat;
 use App\Models\Receipt;
 use App\Events\ContractSignatureUpdated;
+use App\Repositories\UserRepository;
 use App\Services\DocumensoService;
+use App\Services\MessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class DocumensoWebhookController extends Controller
 {
-    public function __construct(protected DocumensoService $documenso)
-    {
+    public function __construct(
+        protected DocumensoService $documenso,
+        protected MessageService $messageService,
+        protected UserRepository $userRepository
+    ) {
     }
 
     public function handle(Request $request)
@@ -58,6 +63,7 @@ class DocumensoWebhookController extends Controller
                     } catch (\Throwable $e) {
                         Log::warning('Diffusion Reverb (signature refusée) échouée, ignorée : ' . $e->getMessage());
                     }
+                    $this->notifySignatureUpdate($target, false);
                 }
                 break;
 
@@ -89,9 +95,33 @@ class DocumensoWebhookController extends Controller
                 } catch (\Throwable $e) {
                     Log::warning('Diffusion Reverb (signature complétée) échouée, ignorée : ' . $e->getMessage());
                 }
+                $this->notifySignatureUpdate($target, true);
             }
         } catch (\Throwable $e) {
             Log::error("Erreur téléchargement document signé Documenso ({$envelopeId}) : " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Notification in-app (centre de notifications + temps reel + push) au locataire,
+     * au gestionnaire de l'immeuble et aux admins, quand un contrat est signe ou refuse.
+     */
+    private function notifySignatureUpdate(Contrat $contrat, bool $signed): void
+    {
+        $tenant = $contrat->tenant;
+        if (!$tenant) {
+            return;
+        }
+
+        $title = $signed ? 'Contrat signé' : 'Signature refusée';
+        $content = $signed
+            ? "Le contrat n°{$contrat->numero} a été signé électroniquement par toutes les parties."
+            : "La signature électronique du contrat n°{$contrat->numero} a été refusée.";
+
+        $recipients = $this->userRepository->getAdminsAndTenantManager($tenant)->push($tenant);
+
+        foreach ($recipients->unique('id') as $recipient) {
+            $this->messageService->notifyInApp($recipient->id, null, $title, $content);
         }
     }
 }

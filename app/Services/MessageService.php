@@ -135,6 +135,29 @@ class MessageService{
         );
     }
 
+    /**
+     * Notifie un utilisateur en in-app uniquement (centre de notifications + temps reel
+     * Reverb + web push), SANS envoyer de mail. A utiliser quand un mail dedie, avec son
+     * propre template, est deja envoye separement (ex: notifications de documents de contrat).
+     */
+    public function notifyInApp(int $receiverId, ?int $senderId, string $title, string $content): void
+    {
+        $receiver = $this->userRepository->findById($receiverId);
+        if (!$receiver) {
+            return;
+        }
+
+        $this->messageRepository->create([
+            'sender_id' => $senderId,
+            'receiver_id' => $receiver->id,
+            'title' => e($title),
+            'content' => e($content),
+            'is_read' => false,
+        ]);
+
+        $this->notifyReceiver($receiver->id, $title, $content);
+    }
+
     private function notifyReceiver(
         int $receiverId,
         string $title,
