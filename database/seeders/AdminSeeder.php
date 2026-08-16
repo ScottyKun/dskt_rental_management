@@ -36,9 +36,10 @@ class AdminSeeder extends Seeder
 
 
     // Affiche le mot de passe uniquement si c'est un nouvel admin
-    if ($admin->wasRecentlyCreated) {
+    Log::info("Admin par défaut créé : {$adminEmail} | Mot de passe : {$randomPassword}");
+    /*if ($admin->wasRecentlyCreated) {
         Log::info("Admin par défaut créé : {$adminEmail} | Mot de passe : {$randomPassword}");
-    }
+    }*/
 }
    
 }
