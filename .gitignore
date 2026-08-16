@@ -25,3 +25,4 @@ Thumbs.db
 compose.local.documenso.yaml
 compose.local.reverb.yaml
 Dockerfile.reverb.local
+.env.prod

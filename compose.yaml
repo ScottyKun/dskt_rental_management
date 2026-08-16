@@ -1,87 +1,130 @@
 services:
-  # Application Laravel
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
+        VITE_REVERB_HOST: ${REVERB_HOST}
+        VITE_REVERB_PORT: ${REVERB_PORT}
+        VITE_REVERB_SCHEME: ${REVERB_SCHEME}
+        VITE_VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
+
     container_name: laravel-app
+
     restart: unless-stopped
-    environment:
-      APP_ENV: production
-      APP_DEBUG: true
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: dskt_prod
-      DB_USERNAME: andy
-      DB_PASSWORD: famproject
-      CACHE_DRIVER: redis
-      SESSION_DRIVER: redis
-      REDIS_HOST: redis
+
+    env_file:
+      - .env.prod
+
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
     networks:
       - internal
+      - storage-internal
       - traefik-public
+
     labels:
       - "traefik.enable=true"
+
       - "traefik.http.routers.laravel.rule=Host(`famproject.cloud`)"
       - "traefik.http.routers.laravel.entrypoints=websecure"
       - "traefik.http.routers.laravel.tls.certresolver=leresolver"
+
       - "traefik.http.services.laravel.loadbalancer.server.port=80"
+
       - "traefik.docker.network=traefik-public"
 
-  # Base de données
-  postgres:
-    image: postgres
-    container_name: postgres_db
-    restart: always
-    environment:
-      POSTGRES_USER: andy
-      POSTGRES_PASSWORD: famproject
-      POSTGRES_DB: dskt_prod
-    volumes:
-      - pgdata:/var/lib/postgresql
-    networks:
-      - internal
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
 
-  # Cache Redis
-  redis:
-    image: redis:7
-    container_name: redis
+    container_name: laravel-reverb
+
     restart: unless-stopped
-    networks:
-      - internal
 
-  # PgAdmin
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@dskt.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+    env_file:
+      - .env.prod
+
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+
+    depends_on:
+      app:
+        condition: service_started
+
     networks:
       - internal
       - traefik-public
-    depends_on:
-      - postgres
+
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.pgadmin.rule=Host(`pg.famproject.cloud`)"
-      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
-      - "traefik.http.routers.pgadmin.entrypoints=websecure"
-      - "traefik.http.routers.pgadmin.tls.certresolver=leresolver"
+
+      - "traefik.http.routers.reverb.rule=Host(`realtime.famproject.cloud`)"
+      - "traefik.http.routers.reverb.entrypoints=websecure"
+      - "traefik.http.routers.reverb.tls.certresolver=leresolver"
+
+      - "traefik.http.services.reverb.loadbalancer.server.port=8080"
+
       - "traefik.docker.network=traefik-public"
+
+
+  postgres:
+    image: postgres:16
+
+    container_name: postgres_db
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+
     volumes:
-      - pgadmin:/var/lib/pgadmin
-  
+      - pgdata:/var/lib/postgresql/data
+
+    networks:
+      - internal
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    networks:
+      - internal
+
 volumes:
   pgdata:
-  pgadmin:
+    name: dskt_pgdata
+
+  redisdata:
+    name: dskt_redisdata
+
 
 networks:
   internal:
+    name: dskt_rental_management_internal
+
+  storage-internal:
+    external: true
+
   traefik-public:
     external: true
