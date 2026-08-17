@@ -67,7 +67,7 @@ class UserService{
         }  
         
         // Assigner un manager si c'est un locataire
-        if ($data['role'] === 'locataire' && !isset($data['manager_id'])) {
+        if (($data['role'] ?? null) === 'locataire' && !isset($data['manager_id'])) {
             throw ValidationException::withMessages([
                 'manager_id' => 'Selectionner un gestionnaire.'
             ]);

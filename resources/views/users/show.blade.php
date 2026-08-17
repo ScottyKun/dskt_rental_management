@@ -82,10 +82,17 @@
 
         <!-- Bouton Modifier -->
         <div class="mt-8 text-center sm:text-right">
-            <a href="{{ route('users.edit', $user->id) }}"
-               class="inline-block w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Modifier mes informations
-            </a>
+            @if (auth()->id() === $user->id)
+                <a href="{{ route('profile.edit') }}"
+                   class="inline-block w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Modifier mes informations
+                </a>
+            @elseif (auth()->user()->role === 'admin')
+                <a href="{{ route('users.edit', $user->id) }}"
+                   class="inline-block w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Modifier cet utilisateur
+                </a>
+            @endif
         </div>
     </div>
 </div>

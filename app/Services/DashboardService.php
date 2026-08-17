@@ -27,10 +27,12 @@ class DashboardService
             ],
             'finance' => [
                 'revenus_du_mois' => $this->revenusConfirmes(null, Carbon::now()),
+                'revenu_total' => $this->revenuTotal(null),
                 'revenus_mois_dernier' => $this->revenusConfirmes(null, Carbon::now()->subMonthNoOverflow()),
                 'montant_impaye' => $this->montantImpaye(),
                 'nb_loyers_en_retard' => $this->nbLoyersEnRetard(),
                 'taux_recouvrement' => $this->tauxRecouvrement(),
+                'cautions' => $this->cautionOverview(null),
             ],
             'contrats' => [
                 'actifs' => Contrat::where('status', 'actif')->count(),
@@ -110,6 +112,8 @@ class DashboardService
                 ->distinct('tenant_id')->count('tenant_id'),
             'contrats_expirant_30j' => $this->contratsExpirantSous(30, $managerId),
             'revenus_du_mois' => $this->revenusConfirmes($managerId, Carbon::now()),
+            'revenu_total' => $this->revenuTotal($managerId),
+            'cautions' => $this->cautionOverview($managerId),
             'montant_impaye' => $this->montantImpaye($managerId),
             'nb_loyers_en_retard' => $this->nbLoyersEnRetard($managerId),
             'cni_en_attente' => (clone $contratsQuery)->whereIn('document_status', ['demande', 'soumis'])->count(),
@@ -147,6 +151,7 @@ class DashboardService
             ->confirmed()
             ->whereMonth('paid_at', $now->month)
             ->whereYear('paid_at', $now->year)
+            ->where('motif', 'loyer')
             ->exists();
 
         if ($payeCeMois) {
@@ -252,6 +257,82 @@ class DashboardService
         return (float) $query->sum('amount');
     }
 
+    private function revenuTotal(?int $managerId = null): float
+    {
+        $query = Payment::confirmed();
+
+        if ($managerId) {
+            $query->where('manager_id', $managerId);
+        }
+
+        return (float) $query->sum('amount');
+    }
+
+    /**
+     * Vue synthétique des dépôts de garantie des contrats actifs.
+     * Les paiements de caution sont rapprochés du locataire puisque Payment
+     * ne possède pas encore de contract_id.
+     */
+    private function cautionOverview(?int $managerId = null): array
+    {
+        $query = Contrat::where('status', 'actif')
+            ->whereNotNull('deposit_amount')
+            ->where('deposit_amount', '>', 0)
+            ->with(['tenant', 'appartement']);
+
+        if ($managerId) {
+            $query->whereHas('appartement.immeuble', fn($q) => $q->where('manager_id', $managerId));
+        }
+
+        $contracts = $query->get();
+        $totalPrevu = 0.0;
+        $totalPaye = 0.0;
+        $totalRestant = 0.0;
+        $aPayer = [];
+
+        foreach ($contracts as $contrat) {
+            $prevu = (float) $contrat->deposit_amount;
+            $paye = (float) Payment::where('tenant_id', $contrat->tenant_id)
+                ->confirmed()
+                ->where('motif', 'caution')
+                ->sum('amount');
+
+            // On ne peut pas imputer un paiement de caution à un contrat
+            // précis tant que Payment ne possède pas de contract_id.
+            // On limite donc le montant imputé au dépôt du contrat courant.
+            $payeImpute = min($paye, $prevu);
+            $restant = max(0, $prevu - $payeImpute);
+
+            $totalPrevu += $prevu;
+            $totalPaye += $payeImpute;
+            $totalRestant += $restant;
+
+            if ($restant > 0) {
+                $aPayer[] = [
+                    'nom' => $contrat->tenant
+                        ? trim($contrat->tenant->name . ' ' . $contrat->tenant->surname)
+                        : '—',
+                    'appartement' => $contrat->appartement->name ?? '—',
+                    'montant' => $prevu,
+                    'paye' => $payeImpute,
+                    'reste' => $restant,
+                    'date_limite' => $contrat->deposit_due_date?->format('d/m/Y'),
+                    'en_retard' => $contrat->deposit_due_date
+                        ? Carbon::today()->gt($contrat->deposit_due_date)
+                        : false,
+                ];
+            }
+        }
+
+        return [
+            'montant_prevu' => $totalPrevu,
+            'montant_paye' => $totalPaye,
+            'montant_restant' => $totalRestant,
+            'nb_a_payer' => count($aPayer),
+            'a_payer' => $aPayer,
+        ];
+    }
+
     private function montantImpaye(?int $managerId = null): float
     {
         // Somme des loyers dus (contrats actifs) non couverts par un paiement confirme ce mois-ci.
@@ -269,6 +350,7 @@ class DashboardService
                     ->confirmed()
                     ->whereMonth('paid_at', $now->month)
                     ->whereYear('paid_at', $now->year)
+                    ->where('motif', 'loyer')
                     ->exists();
 
                 if (!$paye && $now->day >= $contrat->rent_payment_day) {
@@ -296,6 +378,7 @@ class DashboardService
                     ->confirmed()
                     ->whereMonth('paid_at', $now->month)
                     ->whereYear('paid_at', $now->year)
+                    ->where('motif', 'loyer')
                     ->exists();
 
                 if (!$paye && $now->day >= $contrat->rent_payment_day) {
@@ -331,6 +414,7 @@ class DashboardService
                 ->confirmed()
                 ->whereMonth('paid_at', $now->month)
                 ->whereYear('paid_at', $now->year)
+                ->where('motif', 'loyer')
                 ->exists();
 
             $entry = [
@@ -355,7 +439,12 @@ class DashboardService
             return 0.0;
         }
 
-        $encaisse = $this->revenusConfirmes(null, Carbon::now());
+        $query = Payment::confirmed()
+            ->where('motif', 'loyer')
+            ->whereMonth('paid_at', Carbon::now()->month)
+            ->whereYear('paid_at', Carbon::now()->year);
+
+        $encaisse = (float) $query->sum('amount');
 
         return round(($encaisse / $attendu) * 100, 1);
     }

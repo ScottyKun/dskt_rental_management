@@ -17,6 +17,7 @@ use App\Http\Controllers\ReceiptSignatureController;
 use App\Http\Controllers\DocumensoWebhookController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\ProfileController;
 
 Route::get("/", fn() => redirect("login"));
 
@@ -77,6 +78,8 @@ Route::middleware(['auth', 'check.validated', 'mfa', 'must.change.password'])->g
     // Profil : accessible a tout utilisateur connecte, le controleur verifie
     // que c'est son propre profil ou qu'il a un role de gestion.
     Route::get('/users/{id}', [UserController::class, 'consult'])->name('users.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // Message Management Routes (tous roles, scoping fait au niveau service/controleur)
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');

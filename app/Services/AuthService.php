@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Notifications\PasswordChangedNotification;
 use App\Repositories\UserRepository;
 
 class AuthService{
@@ -88,6 +89,10 @@ class AuthService{
 
         // Régénère la session pour éviter les conflits de redirection
         session()->forget('must_change_password');
+
+        // Confirmation mail : alerte l'utilisateur (et permet de detecter un
+        // changement non desire par l'utilisateur lui-meme).
+        $user->notify(new PasswordChangedNotification());
     }
 
     
